@@ -15,6 +15,14 @@ option('default_bus',
        type: 'combo',
        choices: ['dbus-daemon', 'dbus-broker'],
        value: 'dbus-daemon')
+option('use_systemd',
+       description: 'Use systemd if available (needed for dbus-broker)',
+       type: 'boolean',
+       value: true)
+option('gtk2_atk_adaptor',
+       description: 'Build the runtime module loaded by GTK2',
+       type: 'boolean',
+       value: true)
 option('systemd_user_dir',
        description: 'Location of the systemd user services',
        type: 'string',
@@ -25,11 +33,18 @@ option('docs',
        value: false)
 option('introspection',
        description: 'Enable GObject Introspection (depends on GObject)',
-       type: 'combo',
-       choices: ['yes', 'no', 'auto'],
-       value: 'auto')
+       type: 'feature',
+       value: 'auto',
+       yield: true)
 option('x11',
        description: 'Enable X11 support',
-       type: 'combo',
-       choices: ['yes', 'no', 'auto'],
+       type: 'feature',
        value: 'auto')
+option('disable_p2p',
+       description: 'Disable peer-to-peer DBus connections for at-spi2-atk',
+       type: 'boolean',
+       value: false)
+option('atk_only',
+       description: 'Build only the ATK stub library without atspi or at-spi2-atk (UNSUPPORTED)',
+       type: 'boolean',
+       value: false)

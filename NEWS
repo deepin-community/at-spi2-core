@@ -1,3 +1,186 @@
+What's new in at-spi2-core 2.50.0:
+
+* Fix at-spi2-atk test when running under a non-English locale.
+
+What's new in at-spi2-core 2.49.91:
+
+* collection: Avoid locking up if an object has a very large child count
+
+* Fix possible NULL pointer dereference when deregistering an event listener.
+
+* Various fixes for the new key grabbing API.
+
+* Don't wait for a reply when registering or deregistering keystroke
+  listeners.
+
+* Add a meson option to exclude the gtk2 atk-bridge module.
+
+What's new in at-spi2-core 2.49.90:
+
+* Fix a test failure/timeout.
+
+* Add atspi_get_version() to return the runtime version of the library.
+
+* Collection: fix match testing for attributes.
+
+* Fix a NULL pointer dereference when deregistering an event listener that
+  doesn't include a detail.
+
+* Fix the documentation for interfaces in collection match rules.
+
+* Add an AtspiLive enum to specify the politeness level for live regions,
+  and document that this should be used for Announcement signals. Also add a
+  notification signal in atk to replace the announcement signal that lacks
+  the politeness information.
+
+* Add an asynchronous version of atspi_generate_mouse_event.
+
+What's new in at-spi2-core 2.49.1:
+
+* TableCell.xml: Add Get{Column,Row}HeaderCells methods
+
+* atspi_accessible_get_localized_role_name: Use internal names when possible.
+
+* Add a non-recursive function to clear a single object's cache.
+
+* Code clean-ups.
+
+What's new in at-spi2-core 2.48.3:
+
+* Fix the build when dbus-broker is not set to be used by default.
+
+* Fix a couple of use after frees when finalizing devices.
+
+* atk-adaptor: Fix handling of sockets in impl_GetChildren.
+
+What's new in at-spi2-core 2.48.2:
+
+* Fixed a regression in 2.48.1 where the bus launcher would fail if
+  dbus-broker was configured at build time but not installed on the system.
+
+What's new in at-spi2-core 2.48.1:
+
+* Fixes for atk-only builds under Windows.
+
+* meson: Avoid requiring libsystemd when configured to use dbus-daemon
+
+* Fix crash when a bad index is passed to atspi_accessible_get_child_at_index.
+
+* Fix possible infinite recursion in atspi_accessible_clear_cache.
+
+What's new in at-spi2-core 2.48.0:
+
+* Add a "atk-only" build option. This allows atk to be built without libdbus
+  installed, but it does not build libatspi or the atk bridge.
+
+* Fix some typos in the documentation.
+
+What's new in at-spi2-core 2.47.90:
+
+* Downgrade meson requirement to 0.63.
+
+*  at-spi-dbus-bus service: set stop timeout to 5s
+    
+* Fix possible crash in screen_reader_signal_watcher.
+
+What's new in at-spi2-core 2.47.1:
+* The meson options -Dx11 and -Dintrospection are now implemented with
+  meson features - https://mesonbuild.com/Build-options.html#features
+
+  Instead of accepting values of "yes/no/auto", they take
+  "enabled/disabled/auto".  Please change your build scripts
+  accordingly if you use these options.
+
+* Use gi-docgen to generate documentation.
+
+* Register key grabs using the focused window, rather than the root window.
+  This should prevent the window from losing focus when a key grab is used.
+
+* atk-adaptor: Handle sockets in GetChildren.
+
+* Improve documentation of the dbus interfaces.
+
+* Various code clean-ups. Some unused code has been removed.
+
+What's new in at-spi2-core 2.46.0:
+
+* Fix GetInterfaces documentation on org.a11y.atspi.Accessible
+  interface.
+
+What's new in at-spi2-core 2.45.91:
+
+* Send device event controller events using the same signature as other
+  events.
+
+* Document the Accessible, Action, and Cache dbus interfaces.
+
+* Fix license of atspi-gmain.c (#87).
+
+What's new in at-spi2-core 2.45.90:
+
+* xml: Add some documentation.
+
+* xml: Fix event arguments.
+
+* xml: Add some missing DeviceEventController methods.
+
+* Bind the AT-SPI bus to the graphical session.
+
+* Mark bus service as belonging to the session slice.
+
+* Add ATSPI_ROLE_PUSH_BUTTON_MENU.
+
+* Add an "announcement" event/signal to allow objects to send
+  notifications (!63).
+
+* Various code clean-ups and test improvements.
+
+What's new in at-spi2-core 2.45.1:
+
+* Atk and at-spi2-atk are now merged into this project.
+
+* Now requires meson 0.56.2 and glib 2.67.4.
+
+* at-spi2-atk: Expose the accessible hierarchy via dbus introspection.
+
+* Properly escape the AT-SPI bus address; fixes warnings about the address
+  not containing a colon (!55).
+
+* Add a text value to AtspiValue, so that a value can expose a textual
+  description, as in the new Atk value API.
+
+* Add atspi_event_listener_register_with_app, to allow an event listener
+  to be registered only for a given application (!52).
+
+What's new in at-spi2-core 2.44.1:
+
+* Fix use after free when removing a hung process.
+
+* Fix the build with X11 disabled.
+
+* Fix crash when NULL is passed to some listener-related functions.
+
+* impl_deregister_keystroke_listener: fix memory leak on iteration error.
+
+What's new in at-spi2-core 2.44.0:
+
+* Unlink the socket before binding when using dbus-broker. Fixes regression
+  introduced in 2.43.92 where restarting the bus launcher would fail.
+
+What's new in at-spi2-core 2.43.92:
+
+* The AT-SPI bus now uses the user's XDG_RUNTIME_DIR for its socket.
+Fixes accessibility for Snap-confined applications.
+
+* Caps lock is now unlocked for key synthesis. Fixes cutting and
+pasting from brltty when caps lock is on.
+
+* Several fixes to the dbus specification.
+
+* Fix the build when x11 is disabled.
+
+* Fix several compiler warnings.
+
 What's new in at-spi2-core 2.42.0:
 
 * Set X root property when Xwayland starts on demand.

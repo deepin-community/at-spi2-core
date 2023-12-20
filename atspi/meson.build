@@ -15,7 +15,6 @@ atspi_sources = [
   'atspi-hypertext.c',
   'atspi-image.c',
   'atspi-matchrule.c',
-  'atspi-mutter.c',
   'atspi-misc.c',
   'atspi-object.c',
   'atspi-registry.c',
@@ -60,17 +59,26 @@ atspi_headers = [
   'atspi-value.h',
 ]
 
-x11_option = get_option('x11')
-if x11_option != 'no'
-  if x11_dep.found()
-    atspi_sources += ['atspi-device-x11.c']
-    atspi_headers += ['atspi-device-x11.h']
-  endif
+if x11_dep.found()
+  atspi_sources += ['atspi-device-x11.c']
+  atspi_headers += ['atspi-device-x11.h']
 endif
 
 atspi_includedir = join_paths(get_option('prefix'), get_option('includedir'), 'at-spi-2.0', 'atspi')
 
 install_headers(atspi_headers, install_dir: atspi_includedir)
+
+# Features header
+atspi_version_conf = configuration_data()
+atspi_version_conf.set('ATSPI_MAJOR_VERSION', atspi_major_version)
+atspi_version_conf.set('ATSPI_MINOR_VERSION', atspi_minor_version)
+atspi_version_conf.set('ATSPI_MICRO_VERSION', atspi_micro_version)
+
+atspi_version_h = configure_file(input: 'atspi-version.h.in',
+  output: 'atspi-version.h',
+  configuration: atspi_version_conf,
+                            install_dir: atspi_includedir,
+)
 
 # Marshallers
 atspi_marshals = gnome.genmarshal('atspimarshal',
@@ -135,10 +143,10 @@ endif
 
 pkgconfig = import('pkgconfig')
 pkgconfig.generate(
+  atspi,
   name: 'atspi',
   description: 'Accessibility Technology software library',
   version: meson.project_version(),
-  libraries: atspi,
   requires: ['dbus-1', 'glib-2.0'],
   subdirs: 'at-spi-2.0',
   filebase: 'atspi-2',
