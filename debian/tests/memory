@@ -5,13 +5,16 @@ set -e
 WORKDIR=$AUTOPKGTEST_TMP
 SRCDIR=$PWD
 
+patch -p1 < debian/tests-patches/test-application-path.patch 2>&1 || true
+
+
 if [ -n "${DEB_HOST_GNU_TYPE:-}" ]; then
     CROSS_COMPILE="$DEB_HOST_GNU_TYPE-"
 else
     CROSS_COMPILE=
 fi
 
-${CROSS_COMPILE}gcc test/test-application.c -o $WORKDIR/test-application  \
+${CROSS_COMPILE}gcc tests/atspi/test-application.c -o $WORKDIR/test-application  \
 	$(${CROSS_COMPILE}pkg-config --cflags atspi-2) \
 	$(${CROSS_COMPILE}pkg-config --libs atspi-2) \
 	$(${CROSS_COMPILE}pkg-config --cflags glib-2.0) \
@@ -19,7 +22,7 @@ ${CROSS_COMPILE}gcc test/test-application.c -o $WORKDIR/test-application  \
 	$(${CROSS_COMPILE}pkg-config --cflags dbus-1) \
 	$(${CROSS_COMPILE}pkg-config --libs dbus-1)
 
-${CROSS_COMPILE}gcc test/memory.c -o $WORKDIR/memory  \
+${CROSS_COMPILE}gcc tests/atspi/memory.c -o $WORKDIR/memory  \
 	$(${CROSS_COMPILE}pkg-config --cflags atspi-2) \
 	$(${CROSS_COMPILE}pkg-config --libs atspi-2) \
 	$(${CROSS_COMPILE}pkg-config --cflags gobject-2.0) \
@@ -28,3 +31,6 @@ ${CROSS_COMPILE}gcc test/memory.c -o $WORKDIR/memory  \
 unset XDG_RUNTIME_DIR
 cd $WORKDIR
 exec xvfb-run -s -noreset -a dbus-run-session --dbus-daemon $SRCDIR/debian/tests/dbus-daemon -- ./memory
+
+cd $SRCDIR
+patch -p1 -R < debian/tests-patches/test-application-path.patch

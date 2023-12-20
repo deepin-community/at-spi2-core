@@ -1,6 +1,6 @@
 /* -*- mode: c; c-basic-offset: 2; indent-tabs-mode: nil; -*-
- * 
- * at-spi-bus-launcher: Manage the a11y bus as a child process 
+ *
+ * at-spi-bus-launcher: Manage the a11y bus as a child process
  *
  * Copyright 2011-2018 Red Hat, Inc.
  *
@@ -22,35 +22,38 @@
 
 #include "config.h"
 
-#include <unistd.h>
-#include <string.h>
 #include <signal.h>
+#include <string.h>
+#include <unistd.h>
 #ifdef __linux__
 #include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #endif
-#include <sys/wait.h>
 #include <errno.h>
 #include <stdio.h>
+#include <sys/wait.h>
 
 #include <gio/gio.h>
 #ifdef HAVE_X11
-#include <X11/Xlib.h>
 #include <X11/Xatom.h>
+#include <X11/Xlib.h>
 #endif
 #ifdef DBUS_BROKER
 #include <systemd/sd-login.h>
 #endif
+#include <sys/stat.h>
 
-typedef enum {
+typedef enum
+{
   A11Y_BUS_STATE_IDLE = 0,
   A11Y_BUS_STATE_READING_ADDRESS,
   A11Y_BUS_STATE_RUNNING,
   A11Y_BUS_STATE_ERROR
 } A11yBusState;
 
-typedef struct {
+typedef struct
+{
   GMainLoop *loop;
   gboolean launch_immediately;
   gboolean a11y_enabled;
@@ -64,7 +67,8 @@ typedef struct {
 
   A11yBusState state;
   /* -1 == error, 0 == pending, > 0 == running */
-  int a11y_bus_pid;
+  GPid a11y_bus_pid;
+  char *socket_name;
   char *a11y_bus_address;
 #ifdef HAVE_X11
   gboolean x11_prop_set;
@@ -78,17 +82,17 @@ typedef struct {
 static A11yBusLauncher *_global_app = NULL;
 
 static const gchar introspection_xml[] =
-  "<node>"
-  "  <interface name='org.a11y.Bus'>"
-  "    <method name='GetAddress'>"
-  "      <arg type='s' name='address' direction='out'/>"
-  "    </method>"
-  "  </interface>"
-  "<interface name='org.a11y.Status'>"
-  "<property name='IsEnabled' type='b' access='readwrite'/>"
-  "<property name='ScreenReaderEnabled' type='b' access='readwrite'/>"
-  "</interface>"
-  "</node>";
+    "<node>"
+    "  <interface name='org.a11y.Bus'>"
+    "    <method name='GetAddress'>"
+    "      <arg type='s' name='address' direction='out'/>"
+    "    </method>"
+    "  </interface>"
+    "  <interface name='org.a11y.Status'>"
+    "    <property name='IsEnabled' type='b' access='readwrite'/>"
+    "    <property name='ScreenReaderEnabled' type='b' access='readwrite'/>"
+    "  </interface>"
+    "</node>";
 static GDBusNodeInfo *introspection_data = NULL;
 
 static void
@@ -106,10 +110,10 @@ respond_to_end_session (GDBusProxy *proxy)
 
 static void
 g_signal_cb (GDBusProxy *proxy,
-             gchar      *sender_name,
-             gchar      *signal_name,
-             GVariant   *parameters,
-             gpointer    user_data)
+             gchar *sender_name,
+             gchar *signal_name,
+             GVariant *parameters,
+             gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
 
@@ -122,9 +126,9 @@ g_signal_cb (GDBusProxy *proxy,
 }
 
 static void
-client_proxy_ready_cb (GObject      *source_object,
+client_proxy_ready_cb (GObject *source_object,
                        GAsyncResult *res,
-                       gpointer      user_data)
+                       gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
   GError *error = NULL;
@@ -228,14 +232,13 @@ register_client (A11yBusLauncher *app)
                      "RegisterClient", parameters,
                      G_DBUS_CALL_FLAGS_NONE,
                      G_MAXINT, NULL, client_registered, app);
-
 }
 
 static void
 name_appeared_handler (GDBusConnection *connection,
-                       const gchar     *name,
-                       const gchar     *name_owner,
-                       gpointer         user_data)
+                       const gchar *name,
+                       const gchar *name_owner,
+                       gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
 
@@ -248,30 +251,55 @@ name_appeared_handler (GDBusConnection *connection,
  * Read all data from a file descriptor to a C string buffer.
  */
 static gboolean
-unix_read_all_fd_to_string (int      fd,
-                            char    *buf,
-                            ssize_t  max_bytes)
+unix_read_all_fd_to_string (int fd,
+                            char *buf,
+                            ssize_t max_bytes,
+                            char **error_msg)
 {
-  ssize_t bytes_read;
+  g_assert (max_bytes > 1);
+  *error_msg = NULL;
 
-  while (max_bytes > 1 && (bytes_read = read (fd, buf, MIN (4096, max_bytes - 1))))
+  max_bytes -= 1; /* allow space for nul terminator */
+
+  while (max_bytes > 1)
     {
-      if (bytes_read < 0)
-        return FALSE;
-      buf += bytes_read;
-      max_bytes -= bytes_read;
+      ssize_t bytes_read;
+
+    again:
+      bytes_read = read (fd, buf, max_bytes);
+
+      if (bytes_read == 0)
+        {
+          break;
+        }
+      else if (bytes_read > 0)
+        {
+          buf += bytes_read;
+          max_bytes -= bytes_read;
+        }
+      else if (errno == EINTR)
+        {
+          goto again;
+        }
+      else
+        {
+          int err_save = errno;
+          *error_msg = g_strdup_printf ("Failed to read data from accessibility bus: %s", g_strerror (err_save));
+          return FALSE;
+        }
     }
+
   *buf = '\0';
   return TRUE;
 }
 
 static void
-on_bus_exited (GPid     pid,
-               gint     status,
+on_bus_exited (GPid pid,
+               gint status,
                gpointer data)
 {
   A11yBusLauncher *app = data;
-  
+
   app->a11y_bus_pid = -1;
   app->state = A11Y_BUS_STATE_ERROR;
   if (app->a11y_launch_error_message == NULL)
@@ -284,53 +312,69 @@ on_bus_exited (GPid     pid,
         app->a11y_launch_error_message = g_strdup_printf ("Bus stopped by signal %d", WSTOPSIG (status));
     }
   g_main_loop_quit (app->loop);
-} 
-
-#ifdef DBUS_DAEMON
-static void
-setup_bus_child_daemon (gpointer data)
-{
-  A11yBusLauncher *app = data;
-  (void) app;
-
-  close (app->pipefd[0]);
-  dup2 (app->pipefd[1], 3);
-  close (app->pipefd[1]);
-
-  /* On Linux, tell the bus process to exit if this process goes away */
-#ifdef __linux__
-  prctl (PR_SET_PDEATHSIG, 15);
-#endif
 }
 
+#ifdef DBUS_DAEMON
 static gboolean
 ensure_a11y_bus_daemon (A11yBusLauncher *app, char *config_path)
 {
-  char *argv[] = { DBUS_DAEMON, config_path, "--nofork", "--print-address", "3", NULL };
-  GPid pid;
-  char addr_buf[2048];
-  GError *error = NULL;
+  char *address_param;
+
+  if (app->socket_name)
+    {
+      gchar *escaped_address = g_dbus_address_escape_value (app->socket_name);
+      address_param = g_strconcat ("--address=unix:path=", escaped_address, NULL);
+      g_free (escaped_address);
+    }
+  else
+    {
+      address_param = NULL;
+    }
 
   if (pipe (app->pipefd) < 0)
     g_error ("Failed to create pipe: %s", strerror (errno));
 
+  char *print_address_fd_param = g_strdup_printf ("%d", app->pipefd[1]);
+
+  char *argv[] = { DBUS_DAEMON, config_path, "--nofork", "--print-address", print_address_fd_param, address_param, NULL };
+  gint source_fds[1] = { app->pipefd[1] };
+  gint target_fds[1] = { app->pipefd[1] };
+  G_STATIC_ASSERT (G_N_ELEMENTS (source_fds) == G_N_ELEMENTS (target_fds));
+  GPid pid;
+  char addr_buf[2048];
+  GError *error = NULL;
+  char *error_from_read;
+
   g_clear_pointer (&app->a11y_launch_error_message, g_free);
 
-  if (!g_spawn_async (NULL,
-                      argv,
-                      NULL,
-                      G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
-                      setup_bus_child_daemon,
-                      app,
-                      &pid,
-                      &error))
+  if (!g_spawn_async_with_pipes_and_fds (NULL,
+                                         (const gchar *const *) argv,
+                                         NULL,
+                                         G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
+                                         NULL, /* child_setup */
+                                         app,
+                                         -1, /* stdin_fd */
+                                         -1, /* stdout_fd */
+                                         -1, /* stdout_fd */
+                                         source_fds,
+                                         target_fds,
+                                         G_N_ELEMENTS (source_fds), /* n_fds in source_fds and target_fds */
+                                         &pid,
+                                         NULL, /* stdin_pipe_out */
+                                         NULL, /* stdout_pipe_out */
+                                         NULL, /* stderr_pipe_out */
+                                         &error))
     {
       app->a11y_bus_pid = -1;
       app->a11y_launch_error_message = g_strdup (error->message);
       g_clear_error (&error);
+      g_free (address_param);
+      g_free (print_address_fd_param);
       goto error;
     }
 
+  g_free (address_param);
+  g_free (print_address_fd_param);
   close (app->pipefd[1]);
   app->pipefd[1] = -1;
 
@@ -339,10 +383,12 @@ ensure_a11y_bus_daemon (A11yBusLauncher *app, char *config_path)
   app->state = A11Y_BUS_STATE_READING_ADDRESS;
   app->a11y_bus_pid = pid;
   g_debug ("Launched a11y bus, child is %ld", (long) pid);
-  if (!unix_read_all_fd_to_string (app->pipefd[0], addr_buf, sizeof (addr_buf)))
+  error_from_read = NULL;
+  if (!unix_read_all_fd_to_string (app->pipefd[0], addr_buf, sizeof (addr_buf), &error_from_read))
     {
-      app->a11y_launch_error_message = g_strdup_printf ("Failed to read address: %s", strerror (errno));
+      app->a11y_launch_error_message = error_from_read;
       kill (app->a11y_bus_pid, SIGTERM);
+      g_spawn_close_pid (app->a11y_bus_pid);
       app->a11y_bus_pid = -1;
       goto error;
     }
@@ -367,7 +413,7 @@ error:
 static gboolean
 ensure_a11y_bus_daemon (A11yBusLauncher *app, char *config_path)
 {
-	return FALSE;
+  return FALSE;
 }
 #endif
 
@@ -381,14 +427,11 @@ setup_bus_child_broker (gpointer data)
 
   dup2 (app->listenfd, 3);
   close (app->listenfd);
-  g_setenv("LISTEN_FDS", "1", TRUE);
+  g_setenv ("LISTEN_FDS", "1", TRUE);
 
-  pid_str = g_strdup_printf("%u", getpid());
-  g_setenv("LISTEN_PID", pid_str, TRUE);
-  g_free(pid_str);
-
-  /* Tell the bus process to exit if this process goes away */
-  prctl (PR_SET_PDEATHSIG, SIGTERM);
+  pid_str = g_strdup_printf ("%u", getpid ());
+  g_setenv ("LISTEN_PID", pid_str, TRUE);
+  g_free (pid_str);
 }
 
 static gboolean
@@ -396,10 +439,16 @@ ensure_a11y_bus_broker (A11yBusLauncher *app, char *config_path)
 {
   char *argv[] = { DBUS_BROKER, config_path, "--scope", "user", NULL };
   char *unit;
-  struct sockaddr_un addr = { .sun_family = AF_UNIX };
-  socklen_t addr_len = sizeof(addr);
+  struct sockaddr_un addr = { .sun_family = AF_UNIX, "" };
+  socklen_t addr_len = sizeof (addr);
   GPid pid;
   GError *error = NULL;
+
+  if (app->socket_name)
+    {
+      strcpy (addr.sun_path, app->socket_name);
+      unlink (app->socket_name);
+    }
 
   /* This detects whether we are running under systemd. We only try to
    * use dbus-broker if we are running under systemd because D-Bus
@@ -418,14 +467,15 @@ ensure_a11y_bus_broker (A11yBusLauncher *app, char *config_path)
   if ((app->listenfd = socket (PF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0)) < 0)
     g_error ("Failed to create listening socket: %s", strerror (errno));
 
-  if (bind (app->listenfd, (struct sockaddr *)&addr, sizeof(sa_family_t)) < 0)
+  if (bind (app->listenfd, (struct sockaddr *) &addr, addr_len) < 0)
     g_error ("Failed to bind listening socket: %s", strerror (errno));
 
-  if (getsockname (app->listenfd, (struct sockaddr *)&addr, &addr_len) < 0)
-    g_error ("Failed to get socket name for listening socket: %s", strerror(errno));
+  if (!app->socket_name &&
+      getsockname (app->listenfd, (struct sockaddr *) &addr, &addr_len) < 0)
+    g_error ("Failed to get socket name for listening socket: %s", strerror (errno));
 
   if (listen (app->listenfd, 1024) < 0)
-    g_error ("Failed to listen on socket: %s", strerror(errno));
+    g_error ("Failed to listen on socket: %s", strerror (errno));
 
   g_clear_pointer (&app->a11y_launch_error_message, g_free);
 
@@ -452,7 +502,10 @@ ensure_a11y_bus_broker (A11yBusLauncher *app, char *config_path)
   g_debug ("Launched a11y bus, child is %ld", (long) pid);
   app->state = A11Y_BUS_STATE_RUNNING;
 
-  app->a11y_bus_address = g_strconcat("unix:abstract=", addr.sun_path + 1, NULL);
+  if (app->socket_name)
+    app->a11y_bus_address = g_strconcat ("unix:path=", addr.sun_path, NULL);
+  else
+    app->a11y_bus_address = g_strconcat ("unix:abstract=", addr.sun_path + 1, NULL);
   g_debug ("a11y bus address: %s", app->a11y_bus_address);
 
   return TRUE;
@@ -467,7 +520,7 @@ error:
 static gboolean
 ensure_a11y_bus_broker (A11yBusLauncher *app, char *config_path)
 {
-	return FALSE;
+  return FALSE;
 }
 #endif
 
@@ -476,29 +529,60 @@ ensure_a11y_bus (A11yBusLauncher *app)
 {
   char *config_path = NULL;
   gboolean success = FALSE;
+  const gchar *xdg_runtime_dir;
 
   if (app->a11y_bus_pid != 0)
     return FALSE;
 
-  if (g_file_test (SYSCONFDIR"/at-spi2/accessibility.conf", G_FILE_TEST_EXISTS))
-      config_path = "--config-file="SYSCONFDIR"/at-spi2/accessibility.conf";
+  if (g_file_test (SYSCONFDIR "/at-spi2/accessibility.conf", G_FILE_TEST_EXISTS))
+    config_path = "--config-file=" SYSCONFDIR "/at-spi2/accessibility.conf";
   else
-      config_path = "--config-file="DATADIR"/defaults/at-spi2/accessibility.conf";
+    config_path = "--config-file=" DATADIR "/defaults/at-spi2/accessibility.conf";
+
+  xdg_runtime_dir = g_get_user_runtime_dir ();
+  if (xdg_runtime_dir)
+    {
+      const gchar *display = g_getenv ("DISPLAY");
+      gchar *at_spi_dir = g_strconcat (xdg_runtime_dir, "/at-spi", NULL);
+      gchar *p;
+      mkdir (xdg_runtime_dir, 0700);
+      if (!g_path_is_absolute (at_spi_dir))
+        {
+          gchar *new_dir = g_canonicalize_filename (at_spi_dir, NULL);
+          g_free (at_spi_dir);
+          at_spi_dir = new_dir;
+        }
+      if (mkdir (at_spi_dir, 0700) == 0 || errno == EEXIST)
+        {
+          app->socket_name = g_strconcat (at_spi_dir, "/bus", display, NULL);
+          g_free (at_spi_dir);
+          p = strchr (app->socket_name, ':');
+          if (p)
+            *p = '_';
+          if (strlen (app->socket_name) >= 100)
+            {
+              g_free (app->socket_name);
+              app->socket_name = NULL;
+            }
+        }
+      else
+        g_free (at_spi_dir);
+    }
 
 #ifdef WANT_DBUS_BROKER
-    success = ensure_a11y_bus_broker (app, config_path);
-    if (!success)
-      {
-        if (!ensure_a11y_bus_daemon (app, config_path))
-            return FALSE;
-      }
+  success = ensure_a11y_bus_broker (app, config_path);
+  if (!success)
+    {
+      if (!ensure_a11y_bus_daemon (app, config_path))
+        return FALSE;
+    }
 #else
-    success = ensure_a11y_bus_daemon (app, config_path);
-    if (!success)
-      {
-        if (!ensure_a11y_bus_broker (app, config_path))
-            return FALSE;
-      }
+  success = ensure_a11y_bus_daemon (app, config_path);
+  if (!success)
+    {
+      if (!ensure_a11y_bus_broker (app, config_path))
+        return FALSE;
+    }
 #endif
 
 #ifdef HAVE_X11
@@ -524,14 +608,14 @@ ensure_a11y_bus (A11yBusLauncher *app)
 }
 
 static void
-handle_method_call (GDBusConnection       *connection,
-                    const gchar           *sender,
-                    const gchar           *object_path,
-                    const gchar           *interface_name,
-                    const gchar           *method_name,
-                    GVariant              *parameters,
+handle_method_call (GDBusConnection *connection,
+                    const gchar *sender,
+                    const gchar *object_path,
+                    const gchar *interface_name,
+                    const gchar *method_name,
+                    GVariant *parameters,
                     GDBusMethodInvocation *invocation,
-                    gpointer               user_data)
+                    gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
 
@@ -549,13 +633,13 @@ handle_method_call (GDBusConnection       *connection,
 }
 
 static GVariant *
-handle_get_property  (GDBusConnection       *connection,
-                      const gchar           *sender,
-                      const gchar           *object_path,
-                      const gchar           *interface_name,
-                      const gchar           *property_name,
-                    GError **error,
-                    gpointer               user_data)
+handle_get_property (GDBusConnection *connection,
+                     const gchar *sender,
+                     const gchar *object_path,
+                     const gchar *interface_name,
+                     const gchar *property_name,
+                     GError **error,
+                     gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
 
@@ -568,8 +652,7 @@ handle_get_property  (GDBusConnection       *connection,
 }
 
 static void
-handle_a11y_enabled_change (A11yBusLauncher *app, gboolean enabled,
-                               gboolean notify_gsettings)
+handle_a11y_enabled_change (A11yBusLauncher *app, gboolean enabled, gboolean notify_gsettings)
 {
   GVariantBuilder builder;
   GVariantBuilder invalidated_builder;
@@ -604,8 +687,7 @@ handle_a11y_enabled_change (A11yBusLauncher *app, gboolean enabled,
 }
 
 static void
-handle_screen_reader_enabled_change (A11yBusLauncher *app, gboolean enabled,
-                               gboolean notify_gsettings)
+handle_screen_reader_enabled_change (A11yBusLauncher *app, gboolean enabled, gboolean notify_gsettings)
 {
   GVariantBuilder builder;
   GVariantBuilder invalidated_builder;
@@ -645,23 +727,23 @@ handle_screen_reader_enabled_change (A11yBusLauncher *app, gboolean enabled,
 }
 
 static gboolean
-handle_set_property  (GDBusConnection       *connection,
-                      const gchar           *sender,
-                      const gchar           *object_path,
-                      const gchar           *interface_name,
-                      const gchar           *property_name,
-                      GVariant *value,
-                    GError **error,
-                    gpointer               user_data)
+handle_set_property (GDBusConnection *connection,
+                     const gchar *sender,
+                     const gchar *object_path,
+                     const gchar *interface_name,
+                     const gchar *property_name,
+                     GVariant *value,
+                     GError **error,
+                     gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
   const gchar *type = g_variant_get_type_string (value);
   gboolean enabled;
-  
+
   if (g_strcmp0 (type, "b") != 0)
     {
       g_set_error (error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                       "org.a11y.Status.%s expects a boolean but got %s", property_name, type);
+                   "org.a11y.Status.%s expects a boolean but got %s", property_name, type);
       return FALSE;
     }
 
@@ -680,20 +762,18 @@ handle_set_property  (GDBusConnection       *connection,
   else
     {
       g_set_error (error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS,
-                       "Unknown property '%s'", property_name);
+                   "Unknown property '%s'", property_name);
       return FALSE;
     }
 }
 
-static const GDBusInterfaceVTable bus_vtable =
-{
+static const GDBusInterfaceVTable bus_vtable = {
   handle_method_call,
   NULL, /* handle_get_property, */
   NULL  /* handle_set_property */
 };
 
-static const GDBusInterfaceVTable status_vtable =
-{
+static const GDBusInterfaceVTable status_vtable = {
   NULL, /* handle_method_call */
   handle_get_property,
   handle_set_property
@@ -701,13 +781,13 @@ static const GDBusInterfaceVTable status_vtable =
 
 static void
 on_bus_acquired (GDBusConnection *connection,
-                 const gchar     *name,
-                 gpointer         user_data)
+                 const gchar *name,
+                 gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
   GError *error;
   guint registration_id;
-  
+
   if (connection == NULL)
     {
       g_main_loop_quit (app->loop);
@@ -740,21 +820,19 @@ on_bus_acquired (GDBusConnection *connection,
 
 static void
 on_name_lost (GDBusConnection *connection,
-              const gchar     *name,
-              gpointer         user_data)
+              const gchar *name,
+              gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
-  if (app->session_bus == NULL
-      && connection == NULL
-      && app->a11y_launch_error_message == NULL)
+  if (app->session_bus == NULL && connection == NULL && app->a11y_launch_error_message == NULL)
     app->a11y_launch_error_message = g_strdup ("Failed to connect to session bus");
   g_main_loop_quit (app->loop);
 }
 
 static void
 on_name_acquired (GDBusConnection *connection,
-                  const gchar     *name,
-                  gpointer         user_data)
+                  const gchar *name,
+                  gpointer user_data)
 {
   A11yBusLauncher *app = user_data;
 
@@ -784,12 +862,12 @@ sigterm_handler (int signum)
 }
 
 static gboolean
-on_sigterm_pipe (GIOChannel  *channel,
+on_sigterm_pipe (GIOChannel *channel,
                  GIOCondition condition,
-                 gpointer     data)
+                 gpointer data)
 {
   A11yBusLauncher *app = data;
-  
+
   g_main_loop_quit (app->loop);
 
   return FALSE;
@@ -814,8 +892,13 @@ init_sigterm_handling (A11yBusLauncher *app)
 static GSettings *
 get_schema (const gchar *name)
 {
-#if GLIB_CHECK_VERSION (2, 32, 0)
+#if GLIB_CHECK_VERSION(2, 32, 0)
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
+  if (!source)
+    {
+      g_error ("Cannot get the default GSettingsSchemaSource - is the gsettings-desktop-schemas package installed?");
+    }
+
   GSettingsSchema *schema = g_settings_schema_source_lookup (source, name, FALSE);
 
   if (schema == NULL)
@@ -823,15 +906,15 @@ get_schema (const gchar *name)
 
   return g_settings_new_full (schema, NULL, NULL);
 #else
-  const char * const *schemas = NULL;
+  const char *const *schemas = NULL;
   gint i;
 
   schemas = g_settings_list_schemas ();
   for (i = 0; schemas[i]; i++)
-  {
-    if (!strcmp (schemas[i], name))
-      return g_settings_new (schemas[i]);
-  }
+    {
+      if (!strcmp (schemas[i], name))
+        return g_settings_new (schemas[i]);
+    }
 
   return NULL;
 #endif
@@ -849,14 +932,14 @@ gsettings_key_changed (GSettings *gsettings, const gchar *key, void *user_data)
 }
 
 int
-main (int    argc,
+main (int argc,
       char **argv)
 {
   gboolean a11y_set = FALSE;
   gboolean screen_reader_set = FALSE;
   gint i;
 
-  _global_app = g_slice_new0 (A11yBusLauncher);
+  _global_app = g_new0 (A11yBusLauncher, 1);
   _global_app->loop = g_main_loop_new (NULL, FALSE);
 
   for (i = 1; i < argc; i++)
@@ -868,8 +951,8 @@ main (int    argc,
       else if (sscanf (argv[i], "--screen-reader=%d",
                        &_global_app->screen_reader_enabled) == 1)
         screen_reader_set = TRUE;
-    else
-      g_error ("usage: %s [--launch-immediately] [--a11y=0|1] [--screen-reader=0|1]", argv[0]);
+      else
+        g_error ("usage: %s [--launch-immediately] [--a11y=0|1] [--screen-reader=0|1]", argv[0]);
     }
 
   _global_app->interface_schema = get_schema ("org.gnome.desktop.interface");
@@ -878,15 +961,15 @@ main (int    argc,
   if (!a11y_set)
     {
       _global_app->a11y_enabled = _global_app->interface_schema
-                                  ? g_settings_get_boolean (_global_app->interface_schema, "toolkit-accessibility")
-                                  : _global_app->launch_immediately;
+                                      ? g_settings_get_boolean (_global_app->interface_schema, "toolkit-accessibility")
+                                      : _global_app->launch_immediately;
     }
 
   if (!screen_reader_set)
     {
       _global_app->screen_reader_enabled = _global_app->a11y_schema
-                                  ? g_settings_get_boolean (_global_app->a11y_schema, "screen-reader-enabled")
-                                  : FALSE;
+                                               ? g_settings_get_boolean (_global_app->a11y_schema, "screen-reader-enabled")
+                                               : FALSE;
     }
 
   if (_global_app->interface_schema)
@@ -905,24 +988,28 @@ main (int    argc,
   g_assert (introspection_data != NULL);
 
   _global_app->name_owner_id =
-    g_bus_own_name (G_BUS_TYPE_SESSION,
-                    "org.a11y.Bus",
-                    G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT,
-                    on_bus_acquired,
-                    on_name_acquired,
-                    on_name_lost,
-                    _global_app,
-                    NULL);
+      g_bus_own_name (G_BUS_TYPE_SESSION,
+                      "org.a11y.Bus",
+                      G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT,
+                      on_bus_acquired,
+                      on_name_acquired,
+                      on_name_lost,
+                      _global_app,
+                      NULL);
 
   g_main_loop_run (_global_app->loop);
 
   if (_global_app->a11y_bus_pid > 0)
-    kill (_global_app->a11y_bus_pid, SIGTERM);
+    {
+      kill (_global_app->a11y_bus_pid, SIGTERM);
+      g_spawn_close_pid (_global_app->a11y_bus_pid);
+      _global_app->a11y_bus_pid = -1;
+    }
 
-  /* Clear the X property if our bus is gone; in the case where e.g. 
-   * GDM is launching a login on an X server it was using before,
-   * we don't want early login processes to pick up the stale address.
-   */
+    /* Clear the X property if our bus is gone; in the case where e.g.
+     * GDM is launching a login on an X server it was using before,
+     * we don't want early login processes to pick up the stale address.
+     */
 #ifdef HAVE_X11
   if (_global_app->x11_prop_set)
     {

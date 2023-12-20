@@ -29,55 +29,53 @@
 
 typedef unsigned long Accessibility_ControllerEventMask;
 
-typedef enum {
-    Accessibility_KEY_PRESSED_EVENT,
-    Accessibility_KEY_RELEASED_EVENT,
-    Accessibility_BUTTON_PRESSED_EVENT,
-    Accessibility_BUTTON_RELEASED_EVENT,
+typedef enum
+{
+  Accessibility_KEY_PRESSED_EVENT,
+  Accessibility_KEY_RELEASED_EVENT,
 } Accessibility_EventType;
 
-typedef enum {
-    Accessibility_KEY_PRESSED,
-    Accessibility_KEY_RELEASED,
+typedef enum
+{
+  Accessibility_KEY_PRESSED,
+  Accessibility_KEY_RELEASED,
 } Accessibility_KeyEventType;
 
-typedef enum {
-    Accessibility_KEY_PRESS,
-    Accessibility_KEY_RELEASE,
-    Accessibility_KEY_PRESSRELEASE,
-    Accessibility_KEY_SYM,
-    Accessibility_KEY_STRING,
-    Accessibility_KEY_LOCKMODIFIERS,
-    Accessibility_KEY_UNLOCKMODIFIERS,
+typedef enum
+{
+  Accessibility_KEY_PRESS,
+  Accessibility_KEY_RELEASE,
+  Accessibility_KEY_PRESSRELEASE,
+  Accessibility_KEY_SYM,
+  Accessibility_KEY_STRING,
+  Accessibility_KEY_LOCKMODIFIERS,
+  Accessibility_KEY_UNLOCKMODIFIERS,
 } Accessibility_KeySynthType;
 
-typedef struct _Accessibility_DeviceEvent Accessibility_DeviceEvent;
-struct _Accessibility_DeviceEvent
+typedef struct
 {
   Accessibility_EventType type;
   dbus_uint32_t id;
   dbus_uint32_t hw_code;
   dbus_uint32_t modifiers;
   dbus_uint32_t timestamp;
-  char * event_string;
+  char *event_string;
   dbus_bool_t is_text;
-};
+} Accessibility_DeviceEvent;
 
-typedef struct _Accessibility_EventListenerMode Accessibility_EventListenerMode;
-struct _Accessibility_EventListenerMode
+typedef struct
 {
   dbus_bool_t synchronous;
   dbus_bool_t preemptive;
   dbus_bool_t global;
-};
+} Accessibility_EventListenerMode;
 
-typedef struct _Accessibility_KeyDefinition Accessibility_KeyDefinition;
-struct _Accessibility_KeyDefinition
+typedef struct
 {
   dbus_int32_t keycode;
   dbus_int32_t keysym;
   char *keystring;
   dbus_int32_t unused;
-};
+} Accessibility_KeyDefinition;
 
 #endif /* SPI_DE_TYPES_H_ */
