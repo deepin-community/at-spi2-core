@@ -65,9 +65,10 @@ atspi_device_finalize (GObject *object)
   device_parent_class->finalize (object);
 }
 
-static void
+static gboolean
 atspi_device_real_add_key_grab (AtspiDevice *device, AtspiKeyDefinition *kd)
 {
+  return TRUE;
 }
 
 static void
@@ -122,7 +123,7 @@ key_matches_modifiers (gint keycode, guint key_mods, guint grab_mods)
 }
 
 gboolean
-atspi_device_notify_key (AtspiDevice *device, gboolean pressed, int keycode, int keysym, gint state, gchar *text)
+atspi_device_notify_key (AtspiDevice *device, gboolean pressed, int keycode, int keysym, gint state, const gchar *text)
 {
   AtspiDevicePrivate *priv = atspi_device_get_instance_private (device);
   GSList *l;
@@ -181,22 +182,6 @@ get_grab_id (AtspiDevice *device)
   return priv->last_grab_id++;
 }
 
-static gboolean
-grab_has_duplicate (AtspiDevice *device, AtspiKeyGrab *grab)
-{
-  AtspiDevicePrivate *priv = atspi_device_get_instance_private (device);
-  GSList *l;
-
-  for (l = priv->keygrabs; l; l = l->next)
-    {
-      AtspiKeyGrab *other_grab = l->data;
-      if (other_grab->id != grab->id && other_grab->keycode == grab->keycode && other_grab->modifiers == grab->modifiers)
-        return TRUE;
-    }
-
-  return FALSE;
-}
-
 /**
  *atspi_device_add_key_grab:
  * @device: the device.
@@ -207,14 +192,20 @@ grab_has_duplicate (AtspiDevice *device, AtspiKeyGrab *grab)
  * @callback_destroyed: callback function to be called when @callback is
  *                      destroyed.
  *
- * Returns: an identifier that can be later used to remove the grab.
+ * Returns: an identifier that can be later used to remove the grab, or 0
+ * if the key/modifier combination could not be grabbed.
  * Add a key grab for the given key/modifier combination.
  */
 guint
 atspi_device_add_key_grab (AtspiDevice *device, AtspiKeyDefinition *kd, AtspiKeyCallback callback, void *user_data, GDestroyNotify callback_destroyed)
 {
   AtspiDevicePrivate *priv = atspi_device_get_instance_private (device);
-  AtspiKeyGrab *grab = g_new (AtspiKeyGrab, 1);
+  AtspiKeyGrab *grab;
+
+  if (!ATSPI_DEVICE_GET_CLASS (device)->add_key_grab (device, kd))
+    return 0;
+
+  grab = g_new (AtspiKeyGrab, 1);
   grab->keycode = kd->keycode;
   grab->keysym = kd->keysym;
   grab->modifiers = kd->modifiers;
@@ -224,8 +215,6 @@ atspi_device_add_key_grab (AtspiDevice *device, AtspiKeyDefinition *kd, AtspiKey
   grab->id = get_grab_id (device);
   priv->keygrabs = g_slist_append (priv->keygrabs, grab);
 
-  if (!grab_has_duplicate (device, grab))
-    ATSPI_DEVICE_GET_CLASS (device)->add_key_grab (device, kd);
   return grab->id;
 }
 
@@ -247,8 +236,7 @@ atspi_device_remove_key_grab (AtspiDevice *device, guint id)
       AtspiKeyGrab *grab = l->data;
       if (grab->id == id)
         {
-          if (!grab_has_duplicate (device, grab))
-            ATSPI_DEVICE_GET_CLASS (device)->remove_key_grab (device, id);
+          ATSPI_DEVICE_GET_CLASS (device)->remove_key_grab (device, id);
           priv->keygrabs = g_slist_remove (priv->keygrabs, grab);
           if (grab->callback_destroyed)
             (*grab->callback_destroyed) (grab->callback);
@@ -261,11 +249,10 @@ atspi_device_remove_key_grab (AtspiDevice *device, guint id)
 /**
  *atspi_device_add_key_watcher:
  * @device: the device.
- * @callback: (scope notified): the function to call when the given key is
- *            pressed.
- * @user_data: (closure callback): Data to be passed to @callback.
- * @callback_destroyed: (destroy callback): callback function to be called
- *                      when @callback is destroyed.
+ * @callback: (scope notified) (closure user_data) (destroy callback_destroyed): the
+ *   function to call when the given key is pressed.
+ * @user_data: Data to be passed to @callback.
+ * @callback_destroyed: callback function to be called when @callback is destroyed.
  *
  * Add a callback that will receive a notification whenever a key is
  * pressed or released.
@@ -295,6 +282,7 @@ atspi_device_get_grab_by_id (AtspiDevice *device, guint id)
         {
           AtspiKeyDefinition *kd = g_new0 (AtspiKeyDefinition, 1);
           kd->keycode = grab->keycode;
+          kd->keysym = grab->keysym;
           kd->modifiers = grab->modifiers;
           return kd;
         }
@@ -409,4 +397,99 @@ atspi_device_ungrab_keyboard (AtspiDevice *device)
 {
   if (ATSPI_DEVICE_GET_CLASS (device)->ungrab_keyboard)
     ATSPI_DEVICE_GET_CLASS (device)->ungrab_keyboard (device);
+}
+
+/**
+ * atspi_device_generate_mouse_event:
+ * @device: the device.
+ * @obj: The #AtspiAccessible that should receive the click.
+ * @x: a #gint indicating the x coordinate of the mouse event, relative to
+ *     @obj..
+ * @y: a #gint indicating the y coordinate of the mouse event, relative to
+ *     @obj..
+ * @name: a string indicating which mouse event to be synthesized
+ *        (e.g. "b1p", "b1c", "b2r", "rel", "abs").
+ * @error: (allow-none): a pointer to a %NULL #GError pointer, or %NULL
+ *
+ * Synthesizes a mouse event at a specific screen coordinate.
+ * Most AT clients should use the #AccessibleAction interface when
+ * tempted to generate mouse events, rather than this method.
+ * Event names: b1p = button 1 press; b2r = button 2 release;
+ *              b3c = button 3 click; b2d = button 2 double-click;
+ *              abs = absolute motion; rel = relative motion.
+ *
+ * Since: 2.52
+ **/
+void
+atspi_device_generate_mouse_event (AtspiDevice *device, AtspiAccessible *obj, gint x, gint y, const gchar *name, GError **error)
+{
+  if (ATSPI_DEVICE_GET_CLASS (device)->generate_mouse_event)
+    ATSPI_DEVICE_GET_CLASS (device)->generate_mouse_event (device, obj, x, y, name, error);
+}
+
+/**
+ * atspi_device_map_keysym_modifier:
+ * @device: the device.
+ * @keysym: the XKB keysym to map.
+ *
+ * Maps the specified keysym to a modifier so that it can be used in
+ * conjunction with other keys to create a key grab. If the given keysym is
+ * already mapped, then this function will return the modifier that is
+ * currently mapped to the keysym, without doing anything else. Otherwise,
+ * it will use the last modifier that AT-SPI used to map a keysym. If no keys
+ * have yet been mapped using this device, then it will look for a modifier
+ * that is not currently being used. If no unused modifier can be found,
+ * then it will use the first modifier by default.
+ *
+ * Returns: the modifier that is now mapped to this keysym. This return
+ * value can be passed to atspi_device_add_key_grab.
+ *
+ * Since: 2.55
+ */
+guint
+atspi_device_map_keysym_modifier (AtspiDevice *device, guint keysym)
+{
+  if (ATSPI_DEVICE_GET_CLASS (device)->map_keysym_modifier)
+    return ATSPI_DEVICE_GET_CLASS (device)->map_keysym_modifier (device, keysym);
+
+  return 0;
+}
+
+/**
+ * atspi_device_unmap_keysym_modifier:
+ * @device: the device.
+ * @keysym: the XKB keysym to unmap.
+ *
+ * Removes a mapped modifier from the given keysym.
+ *
+ * Since: 2.55
+ */
+void
+atspi_device_unmap_keysym_modifier (AtspiDevice *device, guint keysym)
+{
+  if (ATSPI_DEVICE_GET_CLASS (device)->unmap_keysym_modifier)
+    ATSPI_DEVICE_GET_CLASS (device)->unmap_keysym_modifier (device, keysym);
+}
+
+/**
+ * atspi_device_get_keysym_modifier:
+ * @device: the device.
+ * @keysym: the XKB keysym to map.
+ *
+ * Gets the modifier for a given keysym, if one exists. Does not create a new
+ * mapping. This function should be used when the intention is to query a
+ * locking modifier such as num lock via atspi_device_get_locked_modifiers,
+ * rather than to add key grabs.
+ *
+ * Returns: the modifier that is mapped to this keysym.
+ *
+ * Since: 2.55
+ */
+guint
+atspi_device_get_keysym_modifier (AtspiDevice *device, guint keysym)
+{
+  if (ATSPI_DEVICE_GET_CLASS (device)->get_keysym_modifier)
+    return ATSPI_DEVICE_GET_CLASS (device)->get_keysym_modifier (device, keysym);
+
+  return 0;
 }

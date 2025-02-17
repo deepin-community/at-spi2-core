@@ -1,3 +1,128 @@
+at-spi2-core (2.55.2-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Samuel Thibault <sthibault@debian.org>  Sun, 02 Feb 2025 02:33:11 +0100
+
+at-spi2-core (2.55.0.1-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #1093025)
+
+ -- Samuel Thibault <sthibault@debian.org>  Tue, 14 Jan 2025 20:11:03 +0100
+
+at-spi2-core (2.55.0-1) unstable; urgency=medium
+
+  [ Samuel Thibault ]
+  * New upstream release
+
+  [ Helmut Grohne ]
+  * Improve cross building: Skip documentation in arch-only build.
+    (Closes: Bug#1087292)
+
+ -- Samuel Thibault <sthibault@debian.org>  Sat, 11 Jan 2025 01:49:07 +0100
+
+at-spi2-core (2.54.0-1) unstable; urgency=medium
+
+  * Team upload
+
+  [ Jeremy Bícha ]
+  * New upstream release
+  * Remove 2 patches applied in new release
+
+  [ Samuel Thibault ]
+  * control: Tighten version dependencies between at-spi2-core packages.
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 16 Sep 2024 07:34:32 -0400
+
+at-spi2-core (2.53.1-2) unstable; urgency=medium
+
+  * patches/git-push-button-enum.patch: Cherry-pick fix for push button enum
+    break (Closes: #1078244).
+
+ -- Samuel Thibault <sthibault@debian.org>  Thu, 22 Aug 2024 23:58:39 +0200
+
+at-spi2-core (2.53.1-1) unstable; urgency=medium
+
+  * Team upload
+
+  [ Jeremy Bícha ]
+  * New upstream release (Closes: #998429)
+  * Cherry-pick patch related to the "push button" → "button" rename
+
+  [ Samuel Thibault ]
+  * tests/*: Always unpatch on exit.
+  * test build profiles
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 07 Aug 2024 08:54:05 -0400
+
+at-spi2-core (2.52.0-1) unstable; urgency=medium
+
+  * Team upload
+
+  [ Jeremy Bícha ]
+  * New upstream release
+  * Drop 3 patches applied in new release
+
+  [ Samuel Thibault ]
+  * d/control, rules: Revert 2.51.90-4 changes, now that architectures have
+    caught up.
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 29 Mar 2024 10:11:50 -0400
+
+at-spi2-core (2.51.90-4) unstable; urgency=medium
+
+  [ Simon McVittie ]
+  * d/control, d/rules: Temporarily only use dbus-broker on 64-bit
+    architectures, plus i386.
+    This breaks a dependency cycle on the architectures affected by the
+    64-bit time_t transition:
+    at-spi2-core, dbus-broker, systemd, cryptsetup, libssh, openssh-server,
+    gtk+3.0, at-spi-2-core. It can be reverted after the transition has
+    finished. (Partially reopens: #998062)
+  * d/control, d/rules: Temporarily skip tests on 32-bit except for i386.
+    This allows at-spi2-core to be re-bootstrapped on those architectures
+    during the 64-bit time_t transition. It normally has a circular
+    build-dependency on an older version of itself. (Closes: #1066844)
+
+ -- Samuel Thibault <sthibault@debian.org>  Thu, 14 Mar 2024 11:43:19 +0100
+
+at-spi2-core (2.51.90-3) unstable; urgency=medium
+
+  * patches/missing-function-declaration: Fix build with qa=+bug-implicit-func.
+    Closes: Bug#1066283.
+
+ -- Samuel Thibault <sthibault@debian.org>  Wed, 13 Mar 2024 11:44:52 +0100
+
+at-spi2-core (2.51.90-2) unstable; urgency=medium
+
+  * control: Replace libgirepository1.0-dev build-dep with gir1.2-dbus-1.0-dev
+    gir1.2-glib-2.0-dev gir1.2-gobject-2.0-dev.  Closes: Bug#1065316.
+
+ -- Samuel Thibault <sthibault@debian.org>  Sun, 03 Mar 2024 02:19:20 +0100
+
+at-spi2-core (2.51.90-1) unstable; urgency=medium
+
+  * Team upload
+
+  [ Jeremy Bícha ]
+  * New upstream release
+  * Cherry-pick patches to drop new libei dependency
+  * debian/*.symbols: Add new symbols
+
+  [ Samuel Thibault ]
+  * control: Add Depends: ${gir:Depends} and Provides: ${gir:Provides}
+    (Closes: Bug#1061083)
+  * control: Replace pkg-config deps with pkgconf
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 28 Feb 2024 10:20:22 -0500
+
+at-spi2-core (2.50.0-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Rename libraries for 64-bit time_t transition.  Closes: #1061923
+
+ -- Steve Langasek <vorlon@debian.org>  Wed, 28 Feb 2024 01:56:17 +0000
+
 at-spi2-core (2.50.0-1) unstable; urgency=medium
 
   * New upstream version 2.50.0

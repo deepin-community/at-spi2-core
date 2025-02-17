@@ -9,6 +9,9 @@ ifeq ($(DEB_HOST_ARCH),$(DEB_BUILD_ARCH))
 configure_options += --native-file=$(CURDIR)/debian/meson/no-exe-wrapper.ini
 endif
 
+DO_PACKAGES := $(shell dh_listpackages)
+configure_options += -Ddocs=$(if $(filter at-spi2-doc libatk1.0-doc,$(DO_PACKAGES)),true,false)
+
 %:
 	dh $@
 
@@ -16,7 +19,6 @@ override_dh_auto_configure:
 	ac_cv_lib_ICE_IceConnectionNumber=no \
 	dh_auto_configure -- \
 		-Dintrospection=enabled \
-		-Ddocs=true \
 		$(configure_options) \
 		-Ddefault_bus=dbus-broker
 
@@ -26,8 +28,8 @@ ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
 endif
 
 override_dh_makeshlibs:
-	dh_makeshlibs -plibatspi2.0-0 --add-udeb=libatspi0-udeb -V 'libatspi2.0-0 (>= 2.9.90)'
-	dh_makeshlibs -plibatk-bridge2.0-0 --add-udeb=libatk-bridge-2.0-0-udeb -V -- -c4
-	dh_makeshlibs -plibatk1.0-0 --add-udeb="libatk1.0-udeb" -V -- -c4
+	dh_makeshlibs -plibatspi2.0-0t64 --add-udeb=libatspi0-udeb -V 'libatspi2.0-0t64 (>= 2.9.90)'
+	dh_makeshlibs -plibatk-bridge2.0-0t64 --add-udeb=libatk-bridge-2.0-0-udeb -V -- -c4
+	dh_makeshlibs -plibatk1.0-0t64 --add-udeb="libatk1.0-udeb" -V -- -c4
 	dh_makeshlibs -a --remaining-packages
 	dh_girepository -pgir1.2-atspi-2.0

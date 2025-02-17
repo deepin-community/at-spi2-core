@@ -1,203 +1,201 @@
-# Czech translation for at-spi2-core.
-# Copyright (C) 2011 at-spi2-core's COPYRIGHT HOLDER
+# Kabyle translation for at-spi2-core.
+# Copyright (C) 2024 at-spi2-core's COPYRIGHT HOLDER
 # This file is distributed under the same license as the at-spi2-core package.
-#
-# Michal Bukovjan <bukm@centrum.cz>, 2002.
-# Miloslav Trmac <mitr@volny.cz>, 2003, 2004, 2005.
-# Petr Tomeš <ptomes@gmail.com>, 2006.
-# Lucas Lommer <llommer@svn.gnome.org>, 2008, 2009, 2011.
-# Marek Černocký <marek@manet.cz>, 2011, 2014.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# ButterflyOfFire <ButterflyOfFire@protonmail.com>, 2024.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: atk\n"
+"Project-Id-Version: at-spi2-core gnome-45\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/at-spi2-core/issues/\n"
-"POT-Creation-Date: 2024-08-06 21:05+0000\n"
-"PO-Revision-Date: 2024-08-26 01:16+0200\n"
-"Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
-"Language-Team: Czech <gnome-cs-list@gnome.org>\n"
-"Language: cs\n"
+"POT-Creation-Date: 2024-03-11 11:13+0000\n"
+"PO-Revision-Date: 2024-03-16 13:56+0100\n"
+"Last-Translator: sa\n"
+"Language-Team: Kabyle <>\n"
+"Language: kab\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Poedit 3.4.4\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+"X-DL-Team: kab\n"
+"X-DL-Module: at-spi2-core\n"
+"X-DL-Branch: gnome-45\n"
+"X-DL-Domain: po\n"
+"X-DL-State: Translating\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: atk/atkhyperlink.c:127
 msgid "Selected Link"
-msgstr "Vybraný odkaz"
+msgstr "Fren aseɣwen"
 
 #: atk/atkhyperlink.c:128
 msgid "Specifies whether the AtkHyperlink object is selected"
-msgstr "Určuje, jestli je objekt AtkHyperlink vybrán"
+msgstr "Yessefray ɣef tɣawsa n AtkHypertext tettwafren"
 
 #: atk/atkhyperlink.c:134
 msgid "Number of Anchors"
-msgstr "Počet ukotvení"
+msgstr "Amḍan n timedyin"
 
 #: atk/atkhyperlink.c:135
 msgid "The number of anchors associated with the AtkHyperlink object"
-msgstr "Počet ukotvení asociovaných s objektem AtkHyperlink"
+msgstr "Amḍan n tedmiyin yeqqnen s tɣawsa n AtkHypertext"
 
 #: atk/atkhyperlink.c:143
 msgid "End index"
-msgstr "Index konce"
+msgstr "Amatar n taggara"
 
 #: atk/atkhyperlink.c:144
 msgid "The end index of the AtkHyperlink object"
-msgstr "Index konce objektu AtkHyperlink"
+msgstr "Amatar n taggara n tɣawsa n AtkHypertext"
 
 #: atk/atkhyperlink.c:152
 msgid "Start index"
-msgstr "Index začátku"
+msgstr "Amatar n uskar"
 
 #: atk/atkhyperlink.c:153
 msgid "The start index of the AtkHyperlink object"
-msgstr "Indek začátku objektu AtkHyperlink"
+msgstr "Amatar n uskar n tɣawsa n AtkHypertext"
 
 #: atk/atkobject.c:273
 msgid "Accessible Name"
-msgstr "Zpřístupněný název"
+msgstr "Isem uffar"
 
 #: atk/atkobject.c:274
 msgid "Object instance’s name formatted for assistive technology access"
-msgstr ""
-"Název instance objektu formátovaný pro použití technologiemi zpřístupnění"
+msgstr "Isem n tummant n tɣawasa yemsel i unekcum ɣer tetiknulujiyin n tallalt"
 
 #: atk/atkobject.c:280
 msgid "Accessible Description"
-msgstr "Zpřístupněný popis"
+msgstr "Aglam uffar"
 
 #: atk/atkobject.c:281
 msgid "Description of an object, formatted for assistive technology access"
-msgstr "Popis objektu formátovaný pro použití technologiemi zpřístupnění"
+msgstr "Aglam n tɣawasa, yemsel i unekcum ɣer tetiknulujiyin n tallalt"
 
 #: atk/atkobject.c:287
 msgid "Accessible Parent"
-msgstr "Zpřístupněný rodič"
+msgstr "Amaraw uffar"
 
 #: atk/atkobject.c:288
 msgid "Parent of the current accessible as returned by atk_object_get_parent()"
-msgstr ""
-"Rodič aktuálního zpřístupnění, tak jak jej vrací funkce "
-"atk_object_get_parent()"
+msgstr "Amaraw n wuffar amiran yettwarr-d s atk_object_get_parent()"
 
 #: atk/atkobject.c:304
 msgid "Accessible Value"
-msgstr "Zpřístupněná hodnota"
+msgstr "Azal uffar"
 
 #: atk/atkobject.c:305
 msgid "Is used to notify that the value has changed"
-msgstr "Používá se pro upozornění, že hodnota byla změněna"
+msgstr "Yettuseqdec i uselɣu ɣef wazal yettusenfel"
 
 #: atk/atkobject.c:313
 msgid "Accessible Role"
-msgstr "Zpřístupněná role"
+msgstr "Tmlilt tuffart"
 
 #: atk/atkobject.c:314
 msgid "The accessible role of this object"
-msgstr "Zpřístupněná role tohoto objektu"
+msgstr "Alugen uffar n tɣawsa-a"
 
 #: atk/atkobject.c:321
 msgid "Accessible Layer"
-msgstr "Zpřístupněná vrstva"
+msgstr "Tissi tuffart"
 
 #: atk/atkobject.c:322
 msgid "The accessible layer of this object"
-msgstr "Zpřístupněná vrstva tohoto objektu"
+msgstr "Tissi tuffart deg tɣawsa-a"
 
 #: atk/atkobject.c:330
 msgid "Accessible MDI Value"
-msgstr "Zpřístupněná hodnota MDI"
+msgstr "Azal MDI uffar"
 
 #: atk/atkobject.c:331
 msgid "The accessible MDI value of this object"
-msgstr "Zpřístupněná hodnota MDI tohoto objektu"
+msgstr "Azal MDI uffar n tɣawsa-a"
 
 #: atk/atkobject.c:347
 msgid "Accessible Table Caption"
-msgstr "Zpřístupněný nadpis tabulky"
+msgstr "Taneffust n tfelwit tuffart"
 
 #: atk/atkobject.c:348
 msgid ""
 "Is used to notify that the table caption has changed; this property should "
 "not be used. accessible-table-caption-object should be used instead"
 msgstr ""
-"Používá se pro upozornění, že nadpis tabulky byl změněn; tato vlastnost by "
-"se neměla používat. Místo toho by se mělo používat accessible-table-caption-"
+"Yettuseqdec i uselɣu ɣef tneffust n tfelwit tettusenfel; tazwart-a ur ilaq "
+"ara ad tettuseqdac. ad yettuseqdac deg wadeg-is accessible-table-caption-"
 "object"
 
 #: atk/atkobject.c:362
 msgid "Accessible Table Column Header"
-msgstr "Zpřístupněné záhlaví sloupce tabulky"
+msgstr "Aqerru n tgejdit n tfelwit uffar"
 
 #: atk/atkobject.c:363
 msgid "Is used to notify that the table column header has changed"
-msgstr "Používá se pro upozornění, že záhlaví sloupce tabulky bylo změněno"
+msgstr "Yettuseqdac i uselɣu ɣef uqerru n tgejdit n tfelwit yettusenfel"
 
 #: atk/atkobject.c:378
 msgid "Accessible Table Column Description"
-msgstr "Zpřístupněný popis sloupce tabulky"
+msgstr "Aglam n tgejdit n tfelwit tuffart"
 
 #: atk/atkobject.c:379
 msgid "Is used to notify that the table column description has changed"
-msgstr "Používá se pro upozornění, že popis sloupce tabulky byl změněn"
+msgstr "Yettuseqdac i uselɣu ɣef uglam n tgejdit n tfelwit yettusenfel"
 
 #: atk/atkobject.c:394
 msgid "Accessible Table Row Header"
-msgstr "Zpřístupněné záhlaví řádku tabulky"
+msgstr "Aqerru n yizirig n tfelwit tuffart"
 
 #: atk/atkobject.c:395
 msgid "Is used to notify that the table row header has changed"
-msgstr "Používá se pro upozornění, že záhlaví řádku tabulky bylo změněno"
+msgstr "Yettuseqdac i uselɣu ɣef uqerru n yizirig  n tfelwit yettusenfel"
 
 #: atk/atkobject.c:409
 msgid "Accessible Table Row Description"
-msgstr "Zpřístupněný popis řádku tabulky"
+msgstr "Aglam n yizirig n tfelwit tuffart"
 
 #: atk/atkobject.c:410
 msgid "Is used to notify that the table row description has changed"
-msgstr "Používá se pro upozornění, že popis řádku tabulky byl změněn"
+msgstr "Yettuseqdac i uselɣu ɣef uglam n yizirig n tfelwit yettusenfel"
 
 #: atk/atkobject.c:416
 msgid "Accessible Table Summary"
-msgstr "Zpřístupněný souhrn tabulky"
+msgstr "Agzul n tfelwit tuffart"
 
 #: atk/atkobject.c:417
 msgid "Is used to notify that the table summary has changed"
-msgstr "Používá se pro upozornění, že souhrn tabulky byl změněn"
+msgstr "Yettuseqdac i uselɣu ɣef ugzul n tfelwit yettusenfel"
 
 #: atk/atkobject.c:423
 msgid "Accessible Table Caption Object"
-msgstr "Zpřístupněný objekt nadpisu tabulky"
+msgstr "Taɣawsa n tneffust n tfelwit tuffart"
 
 #: atk/atkobject.c:424
 msgid "Is used to notify that the table caption has changed"
-msgstr "Používá se pro upozornění, že nadpis tabulky byl změněn"
+msgstr "Yettuseqdac i uselɣu ɣef tneffust n tfelwit tettusenfel"
 
 #: atk/atkobject.c:430
 msgid "Number of Accessible Hypertext Links"
-msgstr "Počet zpřístupněných odkazů hypertextu"
+msgstr "Amḍan n yiseɣwan n uflaḍris uffaren"
 
 #: atk/atkobject.c:431
 msgid "The number of links which the current AtkHypertext has"
-msgstr "Počet odkazů, které má aktuální AtkHypertext"
+msgstr "Amḍan n yiseɣwan i yesεa AtkHypertext amiran"
 
 #: atk/atkobject.c:440
 msgid "Accessible ID"
-msgstr "Zpřístupněné ID"
+msgstr "Asulay uffar"
 
 #: atk/atkobject.c:441
 msgid "ID for the accessible; useful for automated testing"
-msgstr "ID pro zpřístupněné; užitečné pro automatizované testování"
+msgstr "Asulay i i wuffar; d unmas i yikayaden iwurmanen"
 
 #: atk/atkobject.c:447
 msgid "Help text"
-msgstr "Text nápovědy"
+msgstr "Aḍris n tallalti"
 
 #: atk/atkobject.c:448
 msgid "Help text associated with the accessible"
-msgstr "Text nápovědy asociovaný se zpřístupněným"
+msgstr "Aḍris n tallalt yeqqen ɣer wuffar"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a password-strength meter. Note that what such a
@@ -207,7 +205,7 @@ msgstr "Text nápovědy asociovaný se zpřístupněným"
 #.
 #: atk/atkvalue.c:193
 msgid "very weak"
-msgstr "velmi slabé"
+msgstr "d afessas aṭas"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a password-strength meter. Note that what such a
@@ -217,7 +215,7 @@ msgstr "velmi slabé"
 #.
 #: atk/atkvalue.c:200
 msgid "weak"
-msgstr "slabé"
+msgstr "d afessas maḍi"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a password-strength meter. Note that what such a
@@ -227,7 +225,7 @@ msgstr "slabé"
 #.
 #: atk/atkvalue.c:207
 msgid "acceptable"
-msgstr "přijatelné"
+msgstr "yettwaqbal"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a password-strength meter. Note that what such a
@@ -237,7 +235,7 @@ msgstr "přijatelné"
 #.
 #: atk/atkvalue.c:214
 msgid "strong"
-msgstr "silné"
+msgstr "iǧhedd"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a password-strength meter. Note that what such a
@@ -247,7 +245,7 @@ msgstr "silné"
 #.
 #: atk/atkvalue.c:221
 msgid "very strong"
-msgstr "velmi silné"
+msgstr "iǧhedd aṭas"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a volume slider. Note that what such a widget
@@ -258,7 +256,7 @@ msgstr "velmi silné"
 #.
 #: atk/atkvalue.c:229
 msgid "very low"
-msgstr "velmi nízké"
+msgstr "yuder aṭas"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a volume slider. Note that what such a widget
@@ -269,7 +267,7 @@ msgstr "velmi nízké"
 #.
 #: atk/atkvalue.c:237
 msgid "medium"
-msgstr "střední"
+msgstr "d alemmas"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a volume slider. Note that what such a widget
@@ -280,7 +278,7 @@ msgstr "střední"
 #.
 #: atk/atkvalue.c:245
 msgid "high"
-msgstr "vysoké"
+msgstr "εlay"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a volume slider. Note that what such a widget
@@ -291,7 +289,7 @@ msgstr "vysoké"
 #.
 #: atk/atkvalue.c:253
 msgid "very high"
-msgstr "velmi vysoké"
+msgstr "εlay aṭas"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a hard drive usage. Note that what such a widget
@@ -302,7 +300,7 @@ msgstr "velmi vysoké"
 #.
 #: atk/atkvalue.c:261
 msgid "very bad"
-msgstr "velmi špatné"
+msgstr "ucmit"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a hard drive usage. Note that what such a widget
@@ -313,7 +311,7 @@ msgstr "velmi špatné"
 #.
 #: atk/atkvalue.c:269
 msgid "bad"
-msgstr "špatné"
+msgstr "yir"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a hard drive usage. Note that what such a widget
@@ -324,7 +322,7 @@ msgstr "špatné"
 #.
 #: atk/atkvalue.c:277
 msgid "good"
-msgstr "dobré"
+msgstr "yelha"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a hard drive usage. Note that what such a widget
@@ -335,7 +333,7 @@ msgstr "dobré"
 #.
 #: atk/atkvalue.c:285
 msgid "very good"
-msgstr "velmi dobré"
+msgstr "igerrez"
 
 #. Translators: This string describes a range within value-related
 #. * widgets such as a hard drive usage. Note that what such a widget
@@ -346,484 +344,481 @@ msgstr "velmi dobré"
 #.
 #: atk/atkvalue.c:293
 msgid "best"
-msgstr "nejlepší"
+msgstr "ifaz"
 
-#: atspi/atspi-component.c:352 atspi/atspi-misc.c:1232 atspi/atspi-value.c:123
+#: atspi/atspi-component.c:352 atspi/atspi-misc.c:1230 atspi/atspi-value.c:123
 msgid "The application no longer exists"
-msgstr "Aplikace již neexistuje"
+msgstr "Dayen ulac asnas-a"
 
 #: atspi/atspi-misc.c:49
 msgid "invalid"
-msgstr "neplatný"
+msgstr "armeɣtu"
 
 #: atspi/atspi-misc.c:50
 msgid "accelerator label"
-msgstr "popisek klávesové zkratky"
+msgstr "tabzimt tuffart"
 
 #: atspi/atspi-misc.c:51
 msgid "alert"
-msgstr "upozornění"
+msgstr "alɣu"
 
 #: atspi/atspi-misc.c:52
 msgid "animation"
-msgstr "animace"
+msgstr "amray"
 
 #: atspi/atspi-misc.c:53
 msgid "arrow"
-msgstr "šipka"
+msgstr "tanila"
 
 #: atspi/atspi-misc.c:54
 msgid "calendar"
-msgstr "kalendář"
+msgstr "awitay"
 
 #: atspi/atspi-misc.c:55
 msgid "canvas"
-msgstr "plátno"
+msgstr "abeckil"
 
 #: atspi/atspi-misc.c:56
 msgid "check box"
-msgstr "zaškrtávací políčko"
+msgstr "senqed tanaka"
 
 #: atspi/atspi-misc.c:57
 msgid "check menu item"
-msgstr "zaškrtávací položka nabídky"
+msgstr "senqed aferdis n wumuɣ"
 
 #: atspi/atspi-misc.c:58
 msgid "color chooser"
-msgstr "výběr barvy"
+msgstr "anefran n yini"
 
 #: atspi/atspi-misc.c:59
 msgid "column header"
-msgstr "záhlaví sloupce"
+msgstr "aqerru n tgejdit"
 
 #: atspi/atspi-misc.c:60
 msgid "combo box"
-msgstr "kombo box"
+msgstr "tanaka n ufran"
 
 #: atspi/atspi-misc.c:61
 msgid "dateeditor"
-msgstr "editor data"
+msgstr "amaẓrag n wazemz"
 
 #: atspi/atspi-misc.c:62
 msgid "desktop icon"
-msgstr "ikona pracovní plochy"
+msgstr "tignit n tnarit"
 
 #: atspi/atspi-misc.c:63
 msgid "desktop frame"
-msgstr "rám pracovní plochy"
+msgstr "akatar n tnarit"
 
 #: atspi/atspi-misc.c:64
 msgid "dial"
-msgstr "číselník"
+msgstr "iwnes"
 
 #: atspi/atspi-misc.c:65
 msgid "dialog"
-msgstr "dialog"
+msgstr "adiwenni"
 
 #: atspi/atspi-misc.c:66
 msgid "directory pane"
-msgstr "panel adresářů"
+msgstr "agalis n ukaram"
 
 #: atspi/atspi-misc.c:67
 msgid "drawing area"
-msgstr "kreslicí oblast"
+msgstr "tamnaḍt n usuneɣ"
 
 #: atspi/atspi-misc.c:68
 msgid "file chooser"
-msgstr "výběr souboru"
+msgstr "anefran n ufaylu"
 
 #: atspi/atspi-misc.c:69
 msgid "filler"
-msgstr "plnič"
+msgstr "amesmad"
 
 #. I know it looks wrong but that is what Java returns
 #: atspi/atspi-misc.c:71
 msgid "fontchooser"
-msgstr "výběr písma"
+msgstr "anefran n tsefsit"
 
 #: atspi/atspi-misc.c:72
 msgid "frame"
-msgstr "rám"
+msgstr "akaram"
 
 #: atspi/atspi-misc.c:73
 msgid "glass pane"
-msgstr "skleněný panel"
+msgstr "agalis n zzǧaǧ"
 
 #: atspi/atspi-misc.c:74
 msgid "html container"
-msgstr "kontejner html"
+msgstr "amagbar html"
 
 #: atspi/atspi-misc.c:75
 msgid "icon"
-msgstr "ikona"
+msgstr "tignit"
 
 #: atspi/atspi-misc.c:76
 msgid "image"
-msgstr "obrázek"
+msgstr "tugna"
 
 #: atspi/atspi-misc.c:77
 msgid "internal frame"
-msgstr "interní rám"
+msgstr "akatar agensan"
 
 #: atspi/atspi-misc.c:78
 msgid "label"
-msgstr "popisek"
+msgstr "tabzimt"
 
 #: atspi/atspi-misc.c:79
 msgid "layered pane"
-msgstr "vrstvený panel"
+msgstr "agalis n tissiwin"
 
 #: atspi/atspi-misc.c:80
 msgid "list"
-msgstr "seznam"
+msgstr "tabdart"
 
 #: atspi/atspi-misc.c:81
 msgid "list item"
-msgstr "položka seznamu"
+msgstr "aferdis n tebdart"
 
 #: atspi/atspi-misc.c:82
 msgid "menu"
-msgstr "nabídka"
+msgstr "umuɣ"
 
 #: atspi/atspi-misc.c:83
 msgid "menu bar"
-msgstr "panel nabídky"
+msgstr "afeggag n wumuɣ"
 
 #: atspi/atspi-misc.c:84
 msgid "menu button"
-msgstr "tlačítko nabídky"
+msgstr "taqeffalt n wumuɣ"
 
 #: atspi/atspi-misc.c:85
 msgid "menu item"
-msgstr "položka nabídky"
+msgstr "aferdis n wumuɣ"
 
 #: atspi/atspi-misc.c:86
 msgid "option pane"
-msgstr "panel voleb"
+msgstr "agalis n textiṛiyin"
 
 #: atspi/atspi-misc.c:87
 msgid "page tab"
-msgstr "záložka stránky"
+msgstr "iccer n usebter"
 
 #: atspi/atspi-misc.c:88
 msgid "page tab list"
-msgstr "seznam záložek stránky"
+msgstr "tabdart n yiccer n usebter"
 
 #: atspi/atspi-misc.c:89
 msgid "panel"
-msgstr "panel"
+msgstr "agalis"
 
 #: atspi/atspi-misc.c:90
 msgid "password text"
-msgstr "text hesla"
+msgstr "aḍris n wawal n uεeddi"
 
 #: atspi/atspi-misc.c:91
 msgid "popup menu"
-msgstr "vyskakovací nabídka"
+msgstr "umuɣ n usfaylu udhim"
 
 #: atspi/atspi-misc.c:92
 msgid "progress bar"
-msgstr "lišta průběhu"
+msgstr "afeggag n usfari"
 
 #: atspi/atspi-misc.c:93
-msgid "button"
-msgstr "tlačítko"
+msgid "push button"
+msgstr "taqeffalt n tussda"
 
 #: atspi/atspi-misc.c:94
 msgid "radio button"
-msgstr "rádiové tlačítko"
+msgstr "taqeffalt n ṛṛadyu"
 
 #: atspi/atspi-misc.c:95
 msgid "radio menu item"
-msgstr "přepínací položka nabídky"
+msgstr "aferdis n wumuɣ n ṛṛadyu"
 
 #: atspi/atspi-misc.c:96
 msgid "root pane"
-msgstr "kořenový panel"
+msgstr "agalis n uẓar"
 
 #: atspi/atspi-misc.c:97
 msgid "row header"
-msgstr "záhlaví řádku"
+msgstr "aqerru n yizirig"
 
 #: atspi/atspi-misc.c:98
 msgid "scroll bar"
-msgstr "posuvná lišta"
+msgstr "afeggag n udrurem"
 
 #: atspi/atspi-misc.c:99
 msgid "scroll pane"
-msgstr "posuvný panel"
+msgstr "agalis n udrurem"
 
 #: atspi/atspi-misc.c:100
 msgid "separator"
-msgstr "oddělovač"
+msgstr "anabraz"
 
 #: atspi/atspi-misc.c:101
 msgid "slider"
-msgstr "posunovač"
+msgstr "tigri"
 
 #: atspi/atspi-misc.c:102
 msgid "split pane"
-msgstr "oddělený panel"
+msgstr "agalis n tebniqt"
 
 #: atspi/atspi-misc.c:103
 msgid "spin button"
-msgstr "otáčecí tlačítko"
+msgstr "taqeffalt n tuzzya"
 
 #: atspi/atspi-misc.c:104
 msgid "statusbar"
-msgstr "stavová-lišta"
+msgstr "afeggag n waddad"
 
 #: atspi/atspi-misc.c:105
 msgid "table"
-msgstr "tabulka"
+msgstr "tafelwit"
 
 #: atspi/atspi-misc.c:106
 msgid "table cell"
-msgstr "buňka tabulky"
+msgstr "tabniqt n tfelwit"
 
 #: atspi/atspi-misc.c:107
 msgid "table column header"
-msgstr "záhlaví sloupce tabulky"
+msgstr "aqerru n tgejdit n tfelwit"
 
 #: atspi/atspi-misc.c:108
 msgid "table row header"
-msgstr "záhlaví řádku tabulky"
+msgstr "aqerru n yizirig n tfelwit"
 
 #: atspi/atspi-misc.c:109
 msgid "tear off menu item"
-msgstr "odtrhávací položka nabídky"
+msgstr "senfer aferdis n wumuɣ"
 
 #: atspi/atspi-misc.c:110
 msgid "terminal"
-msgstr "terminál"
+msgstr "tadiwent"
 
 #: atspi/atspi-misc.c:111
 msgid "text"
-msgstr "text"
+msgstr "aḍris"
 
 #: atspi/atspi-misc.c:112
 msgid "toggle button"
-msgstr "přepínač"
+msgstr "taqeffalt n uneggez"
 
 #: atspi/atspi-misc.c:113
 msgid "tool bar"
-msgstr "nástrojová lišta"
+msgstr "afeggag n yifecka"
 
 #: atspi/atspi-misc.c:114
 msgid "tool tip"
-msgstr "tip"
+msgstr "asentel n yifcka"
 
 #: atspi/atspi-misc.c:115
 msgid "tree"
-msgstr "strom"
+msgstr "aseklu"
 
 #: atspi/atspi-misc.c:116
 msgid "tree table"
-msgstr "stromová tabulka"
+msgstr "tafelwit n yisekla"
 
 #: atspi/atspi-misc.c:117
 msgid "unknown"
-msgstr "neznámý"
+msgstr "arussin"
 
 #: atspi/atspi-misc.c:118
 msgid "viewport"
-msgstr "pohled"
+msgstr "asfaylu"
 
 #: atspi/atspi-misc.c:119
 msgid "window"
-msgstr "okno"
+msgstr "asfaylu"
 
 #: atspi/atspi-misc.c:120
 msgid "header"
-msgstr "záhlaví"
+msgstr "aqerru"
 
 #: atspi/atspi-misc.c:121
 msgid "footer"
-msgstr "zápatí"
+msgstr "aḍar"
 
 #: atspi/atspi-misc.c:122
 msgid "paragraph"
-msgstr "odstavec"
+msgstr "taseddart"
 
 #: atspi/atspi-misc.c:123
 msgid "ruler"
-msgstr "pravítko"
+msgstr "alugan"
 
 #: atspi/atspi-misc.c:124
 msgid "application"
-msgstr "aplikace"
+msgstr "asnas"
 
 #: atspi/atspi-misc.c:125
 msgid "autocomplete"
-msgstr "autodoplnění"
+msgstr "taččart tawurmant"
 
 #: atspi/atspi-misc.c:126
 msgid "edit bar"
-msgstr "editační lišta"
+msgstr "ẓreg afeggag"
 
 #: atspi/atspi-misc.c:127
 msgid "embedded component"
-msgstr "vložená komponenta"
+msgstr "asuddes usliɣ"
 
 #: atspi/atspi-misc.c:128
 msgid "entry"
-msgstr "vstupní pole"
+msgstr "anekcum"
 
 #: atspi/atspi-misc.c:129
 msgid "chart"
-msgstr "graf"
+msgstr "adlif"
 
 #: atspi/atspi-misc.c:130
 msgid "caption"
-msgstr "titulek"
+msgstr "taneffust"
 
 #: atspi/atspi-misc.c:131
 msgid "document frame"
-msgstr "rám dokumentu"
+msgstr "akaram n yisemli"
 
 #: atspi/atspi-misc.c:132
 msgid "heading"
-msgstr "záhlaví"
+msgstr "ixef"
 
 #: atspi/atspi-misc.c:133
 msgid "page"
-msgstr "strana"
+msgstr "asebter"
 
 #: atspi/atspi-misc.c:134
 msgid "section"
-msgstr "oddíl"
+msgstr "tafrayt"
 
 #: atspi/atspi-misc.c:135
 msgid "redundant object"
-msgstr "redundantní objet"
+msgstr "taɣawsa tallusant"
 
 #: atspi/atspi-misc.c:136
 msgid "form"
-msgstr "formulář"
+msgstr "eg"
 
 #: atspi/atspi-misc.c:137
 msgid "link"
-msgstr "odkaz"
+msgstr "aseɣwen"
 
 #: atspi/atspi-misc.c:138
 msgid "input method window"
-msgstr "okno vstupní metody"
+msgstr "asfaylu n tarrayt n tira"
 
 #: atspi/atspi-misc.c:139
 msgid "table row"
-msgstr "řádek tabulky"
+msgstr "izirig n tfelwit"
 
 #: atspi/atspi-misc.c:140
 msgid "tree item"
-msgstr "položka stromu"
+msgstr "aferdis n yifecka"
 
 #: atspi/atspi-misc.c:141
 msgid "document spreadsheet"
-msgstr "tabulka v dokumentu"
+msgstr "tifert n usiḍen n yisemli"
 
 #: atspi/atspi-misc.c:142
 msgid "document presentation"
-msgstr "prezentace v dokumentu"
+msgstr "asenked n yisemli"
 
 #: atspi/atspi-misc.c:143
 msgid "document text"
-msgstr "text v dokumentu"
+msgstr "aḍris n yisemli"
 
 #: atspi/atspi-misc.c:144
 msgid "document web"
-msgstr "webová stránka v dokumentu"
+msgstr "isemli web"
 
 #: atspi/atspi-misc.c:145
 msgid "document email"
-msgstr "e-mail dokumentu"
+msgstr "isemli n yimayl"
 
 #: atspi/atspi-misc.c:146
 msgid "comment"
-msgstr "komentář"
+msgstr "awennit"
 
 #: atspi/atspi-misc.c:147
 msgid "list box"
-msgstr "seznam"
+msgstr "tabewwaḍt n tebdarin"
 
 #: atspi/atspi-misc.c:148
 msgid "grouping"
-msgstr "skupiny"
+msgstr "asegrew"
 
 #: atspi/atspi-misc.c:149
 msgid "image map"
-msgstr "obrázková mapa"
+msgstr "tafelwit n tugna"
 
 #: atspi/atspi-misc.c:150
 msgid "notification"
-msgstr "oznámení"
+msgstr "alɣu"
 
 #: atspi/atspi-misc.c:151
 msgid "info bar"
-msgstr "informační lišta"
+msgstr "afeggag n talɣut"
 
 #: atspi/atspi-misc.c:152
 msgid "level bar"
-msgstr "ukazatel úrovně"
+msgstr "afeggag n uswir"
 
 #: atspi/atspi-misc.c:153
 msgid "title bar"
-msgstr "záhlaví"
+msgstr "afeggag n uzwel"
 
 #: atspi/atspi-misc.c:154
 msgid "block quote"
-msgstr "citace"
+msgstr "sewḥel izen"
 
 #: atspi/atspi-misc.c:155
 msgid "audio"
-msgstr "zvuk"
+msgstr "ameslaw"
 
 #: atspi/atspi-misc.c:156
 msgid "video"
-msgstr "video"
+msgstr "tavidyut"
 
 #: atspi/atspi-misc.c:157
 msgid "definition"
-msgstr "definice"
+msgstr "tabadut"
 
 #: atspi/atspi-misc.c:158
 msgid "article"
-msgstr "článek"
+msgstr "amagrad"
 
 #: atspi/atspi-misc.c:159
 msgid "landmark"
-msgstr "orientační bod"
+msgstr "ticreḍt n useddag"
 
 #: atspi/atspi-misc.c:160
 msgid "log"
-msgstr "záznam"
+msgstr "qqen"
 
 #: atspi/atspi-misc.c:161
 msgid "marquee"
-msgstr "běžící text"
+msgstr "marquee"
 
 #: atspi/atspi-misc.c:162
 msgid "math"
-msgstr "matematika"
+msgstr "tusnakt"
 
 #: atspi/atspi-misc.c:163
 msgid "rating"
-msgstr "hodnocení"
+msgstr "tazmilt"
 
 #: atspi/atspi-misc.c:164
 msgid "timer"
-msgstr "časovač"
+msgstr "amakud"
 
 #: atspi/atspi-misc.c:165
 msgid "description list"
-msgstr "seznam definic"
+msgstr "tabdart n uglam"
 
 #: atspi/atspi-misc.c:166
 msgid "description term"
-msgstr "termín definice"
+msgstr "tiwtilin n uglam"
 
 #: atspi/atspi-misc.c:167
 msgid "description value"
-msgstr "hodnota definice"
-
-#~ msgid "push button"
-#~ msgstr "tlačítko"
+msgstr "azal n uglam"

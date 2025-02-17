@@ -197,6 +197,14 @@ wait_for_test_app_timeout_cb (gpointer user_data)
 static guint fixture_serial = 0;
 
 void
+do_abort (int sig)
+{
+  signal (sig, SIG_DFL);
+  if (current_fixture)
+    fixture_teardown (current_fixture, NULL);
+}
+
+void
 fixture_setup (TestAppFixture *fixture, gconstpointer user_data)
 {
   const char *file_name = user_data;
@@ -212,6 +220,8 @@ fixture_setup (TestAppFixture *fixture, gconstpointer user_data)
 
   current_fixture = fixture;
   putenv ("ATSPI_IN_TESTS=1");
+  signal (SIGABRT, do_abort);
+  signal (SIGSEGV, do_abort);
   atspi_event_main ();
 
   if (fixture->wait_for_test_app_timeout)
@@ -248,7 +258,7 @@ check_name (AtspiAccessible *accessible, const char *expected_name)
 {
   gchar *obj_name;
 
-  g_assert (accessible);
+  g_assert_nonnull (accessible);
   obj_name = atspi_accessible_get_name (accessible, NULL);
   g_assert_cmpstr (expected_name, ==, obj_name);
   g_free (obj_name);
