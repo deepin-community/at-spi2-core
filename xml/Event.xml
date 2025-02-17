@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <node>
-
-  <!-- FIXME: all the following signatures are incorrect and need to be synched
-       with the C code and the actual implementations in toolkits.
-
-       See https://gitlab.gnome.org/GNOME/at-spi2-core/-/issues/74
-  -->
-
   <interface name="org.a11y.atspi.Event.Object">
     <signal name="PropertyChange">
       <arg name="property" type="s"/>
@@ -81,19 +74,22 @@
       <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QSpiEvent"/>
     </signal>
     <signal name="Announcement">
-      <arg name="text" type="s"/>
+      <arg type="s"/>
       <!-- politeness should be 1 (ATSPI_LIVE_POLITE) or 2
            (ATSPI_LIVE_ASSERTIVE) -->
       <arg type="i" name="politeness"/>
       <arg type="i"/>
+      <!-- The variant should enclose a string with the text to be announced -->
       <arg type="v"/>
       <arg name="properties" type="a{sv}"/>
       <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QSpiEvent"/>
     </signal>
     <signal name="AttributesChanged">
-      <arg type="s"/>
+      <!-- name specifies the name of the attribute that has changed, when available -->
+      <arg name="name" type="s"/>
       <arg type="i"/>
       <arg type="i"/>
+      <!-- The variant should include a string with the attribute's new value, when available -->
       <arg type="v"/>
       <arg name="properties" type="a{sv}"/>
       <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QSpiEvent"/>
@@ -460,9 +456,11 @@
       <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QSpiEvent"/>
     </signal>
     <signal name="AttributesChanged">
-      <arg type="s"/>
+      <!-- name specifies the name of the attribute that has changed, when available -->
+      <arg name="name" type="s"/>
       <arg type="i"/>
       <arg type="i"/>
+      <!-- The variant should include a string with the attribute's new value, when available -->
       <arg type="v"/>
       <arg name="properties" type="a{sv}"/>
       <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QSpiEvent"/>

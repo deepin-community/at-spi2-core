@@ -1,3 +1,100 @@
+What's new in at-spi2-core 2.55.2:
+
+* Attempt to fix a use after free in the atk bridge.
+
+* Add a switch role.
+
+What's new in at-spi2-core 2.55.0.1:
+
+* Fix regression in 2.55.0 where ungrabbing keys did not work reliably.
+
+What's new in at-spi2-core 2.55.0:
+
+* Fix various memory leaks.
+
+* Fix the build on FreeBSD.
+
+* Improve warnings when setting a property.
+
+* Use the appropriate annotations for callbacks.
+
+* device: Support adding grabs given a keysym.
+
+What's new in at-spi2-core 2.53.90:
+
+* Make ATSPI_ROLE_PUSH_BUTTON an enum value again.
+
+* atk: Align button role with AT-SPI one.
+
+* Fix warning when atspi_event_quit is called multiple times.
+
+What's new in at-spi2-core 2.53.1:
+
+* tests: Clean up test application on SIGABRT/SIGSEGV.
+
+* Set (allow-none) for nullable parameters to atspi_match_rule_new.
+
+* collection: Allow specifying specific action names in match rules.
+
+    atk-adaptor: Fix duplicated results in GetMatchesFrom.
+
+* atk-adaptor: For collections, don't return objects with 0 actions as
+  supporting AtkAction.
+
+* Rename ATSPI_ROLE_PUSH_BUTTON to ATSPI_ROLE_BUTTON.
+
+What's new in at-spi2-core 2.53.0:
+
+    Add missing prototypes for functions to check the presence of interfaces.
+
+* Replace disable_p2p with an ATSPI_DISABLE_P2P environment variable.
+
+* Drop use of deprecated eaves-dropping option in dbus configuration
+
+    atk-adaptor: Limit amount of children to return for GetChildren
+
+* Notify about HelpText attribute change.
+
+* Fix possible double unref in add_accessible_from_iter.
+
+What's new in at-spi2-core 2.52.0:
+
+* tests: Fix missing declaration for getpid().
+
+What's new in at-spi2-core 2.51.90:
+
+* Back out code to generate mouse events on mutter. It had a couple of
+  unwanted side effects. Also remove dependencies on libei and xkbcommon.
+
+* atk-adaptor: Fix collection role matching.
+
+* Have atspi_text_get_string_at_offset fall back to calling
+  GetTextAtOffset if GetStringAtOffset is unimplemented.
+
+* Don't use g_assert in the unit tests.
+
+What's new in at-spi2-core 2.51.91:
+
+    Add an attribute-changed signal in atk, and update libatspi attribute cache.
+
+* Add GetTextSelection and SetTextSelection to Document interface.
+
+* Add atspi_device_generate_mouse_event, and implement for mutter.
+
+* Have atspi_device_add_key_grab return 0 if XIGrabKeycode fails.
+
+* xml: Add Embedded to the Socket interface
+
+* Don't return uninitialized values if atspi_component_get_size/position fail.
+
+What's new in at-spi2-core 2.51.0:
+
+* atk-adaptor: Fix critical when no table cell array is returned.
+
+* accessible: Do not rename deprecated methods to the new names.
+
+* Add HelpText property and corresponding functions in atk and libatspi.
+
 What's new in at-spi2-core 2.50.0:
 
 * Fix at-spi2-atk test when running under a non-English locale.

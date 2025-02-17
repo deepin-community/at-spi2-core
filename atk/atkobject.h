@@ -76,7 +76,7 @@ G_BEGIN_DECLS
  *@ATK_ROLE_PASSWORD_TEXT: A text object uses for passwords, or other places where the text content is not shown visibly to the user
  *@ATK_ROLE_POPUP_MENU: A temporary window that is usually used to offer the user a list of choices, and then hides when the user selects one of those choices
  *@ATK_ROLE_PROGRESS_BAR: An object used to indicate how much of a task has been completed
- *@ATK_ROLE_PUSH_BUTTON: An object the user can manipulate to tell the application to do something
+ *@ATK_ROLE_BUTTON: An object the user can manipulate to tell the application to do something
  *@ATK_ROLE_RADIO_BUTTON: A specialized check box that will cause other radio buttons in the same group to become unchecked when this one is checked
  *@ATK_ROLE_RADIO_MENU_ITEM: A check menu item which belongs to a group. At each instant exactly one of the radio menu items from a group is selected
  *@ATK_ROLE_ROOT_PANE: A specialized pane that has a glass pane and a layered pane as its children
@@ -237,6 +237,8 @@ G_BEGIN_DECLS
  * actual change is. (Since: 2.36)
  *@ATK_ROLE_PUSH_BUTTON_MENU: A specialized push button to open a menu.
  * (Since: 2.46)
+ *@ATK_ROLE_SWITCH: A switch that can be toggled on/off.
+ * (Since: 2.56)
  *@ATK_ROLE_LAST_DEFINED: not a valid role, used for finding end of the enumeration
  *
  * Describes the role of an object
@@ -289,7 +291,7 @@ typedef enum
   ATK_ROLE_PASSWORD_TEXT,
   ATK_ROLE_POPUP_MENU,
   ATK_ROLE_PROGRESS_BAR,
-  ATK_ROLE_PUSH_BUTTON,
+  ATK_ROLE_BUTTON,
   ATK_ROLE_RADIO_BUTTON,
   ATK_ROLE_RADIO_MENU_ITEM,
   ATK_ROLE_ROOT_PANE,
@@ -375,7 +377,11 @@ typedef enum
   ATK_ROLE_MARK,
   ATK_ROLE_SUGGESTION,
   ATK_ROLE_PUSH_BUTTON_MENU,
-  ATK_ROLE_LAST_DEFINED
+  ATK_ROLE_SWITCH,
+  ATK_ROLE_LAST_DEFINED,
+
+  /* For backwards compatibility */
+  ATK_ROLE_PUSH_BUTTON = ATK_ROLE_BUTTON,
 } AtkRole;
 
 /**
@@ -805,12 +811,19 @@ AtkRole atk_role_register (const gchar *name);
 ATK_AVAILABLE_IN_2_8
 const gchar *atk_object_get_object_locale (AtkObject *accessible);
 
-ATK_AVAILABLE_IN_ALL
+ATK_AVAILABLE_IN_2_36
 const gchar *atk_object_get_accessible_id (AtkObject *accessible);
 
-ATK_AVAILABLE_IN_ALL
+ATK_AVAILABLE_IN_2_36
 void atk_object_set_accessible_id (AtkObject *accessible,
-                                   const gchar *name);
+                                   const gchar *id);
+
+ATK_AVAILABLE_IN_2_52
+const gchar *atk_object_get_help_text (AtkObject *accessible);
+
+ATK_AVAILABLE_IN_2_52
+void atk_object_set_help_text (AtkObject *accessible,
+                               const gchar *help_text);
 
 G_END_DECLS
 
