@@ -32,7 +32,9 @@
 #ifdef HAVE_X11
 #include "X11/Xlib.h"
 #endif
-#include "atspi-gmain.h"
+#ifdef HAVE_DBUS_GLIB
+#include "dbus/dbus-glib-lowlevel.h"
+#endif
 #include <ctype.h>
 #include <locale.h>
 #include <stdio.h>
@@ -90,7 +92,7 @@
   N_("password text")
   N_("popup menu")
   N_("progress bar")
-  N_("push button")
+  N_("button")
   N_("radio button")
   N_("radio menu item")
   N_("root pane")
@@ -102,6 +104,7 @@
   N_("split pane")
   N_("spin button")
   N_("statusbar")
+  N_("switch")
   N_("table")
   N_("table cell")
   N_("table column header")
@@ -463,7 +466,7 @@ ref_accessible (ReferenceFromMessage *ref)
       return g_object_ref (a);
     }
   a = _atspi_accessible_new (app, ref->path);
-  g_hash_table_insert (app->hash, g_strdup (a->parent.path), g_object_ref (a));
+  g_hash_table_insert (app->hash, g_strdup (a->parent.path), a);
   return a;
 }
 
@@ -483,8 +486,6 @@ ref_hyperlink (const char *app_name, const char *path)
     }
   hyperlink = _atspi_hyperlink_new (app, path);
   g_hash_table_insert (app->hash, g_strdup (hyperlink->parent.path), hyperlink);
-  /* TODO: This should be a weak ref */
-  g_object_ref (hyperlink); /* for the hash */
   return hyperlink;
 }
 
@@ -504,7 +505,6 @@ static DBusHandlerResult
 handle_remove_accessible (DBusConnection *bus, DBusMessage *message)
 {
   ReferenceFromMessage ref;
-  AtspiApplication *app;
   DBusMessageIter iter;
   const char *signature = dbus_message_get_signature (message);
   AtspiAccessible *a;
@@ -518,12 +518,10 @@ handle_remove_accessible (DBusConnection *bus, DBusMessage *message)
   dbus_message_iter_init (message, &iter);
 
   get_reference_from_iter (&iter, &ref);
-  app = get_application (ref.app_name);
   a = ref_accessible (&ref);
   if (!a)
     return DBUS_HANDLER_RESULT_HANDLED;
   g_object_run_dispose (G_OBJECT (a));
-  g_hash_table_remove (app->hash, a->parent.path);
   g_object_unref (a); /* unref our own ref */
   return DBUS_HANDLER_RESULT_HANDLED;
 }
@@ -616,8 +614,9 @@ add_accessible_from_iter (DBusMessageIter *iter)
     {
       /* Get index in parent */
       dbus_message_iter_get_basic (&iter_struct, &index);
-      if (index >= 0 && accessible->accessible_parent)
+      if (index >= 0 && index < ATSPI_MAX_CHILDREN && accessible->accessible_parent)
         {
+          AtspiAccessible *old_child = NULL;
           if (index >= accessible->accessible_parent->children->len)
             {
               /* There is no room for this object */
@@ -627,9 +626,10 @@ add_accessible_from_iter (DBusMessageIter *iter)
             {
               /* This place is already taken - let's free this place with dignity */
               if (g_ptr_array_index (accessible->accessible_parent->children, index))
-                g_object_unref (g_ptr_array_index (accessible->accessible_parent->children, index));
+                old_child = g_ptr_array_index (accessible->accessible_parent->children, index);
             }
           g_ptr_array_index (accessible->accessible_parent->children, index) = g_object_ref (accessible);
+          g_clear_object (&old_child);
         }
 
       /* get child count */
@@ -690,6 +690,8 @@ add_accessible_from_iter (DBusMessageIter *iter)
       children_cached)
     _atspi_accessible_add_cache (accessible, ATSPI_CACHE_CHILDREN);
 
+  _atspi_accessible_set_cached (accessible, TRUE);
+
   /* This is a bit of a hack since the cache holds a ref, so we don't need
    * the one provided for us anymore */
   g_object_unref (accessible);
@@ -746,8 +748,7 @@ ref_accessible_desktop (AtspiApplication *app)
       return desktop;
     }
   desktop = _atspi_accessible_new (app, atspi_path_root);
-  g_hash_table_insert (app->hash, g_strdup (desktop->parent.path),
-                       g_object_ref (desktop));
+  g_hash_table_insert (app->hash, g_strdup (desktop->parent.path), desktop);
   app->root = g_object_ref (desktop);
   desktop->name = g_strdup ("main");
   message = dbus_message_new_method_call (atspi_bus_registry,
@@ -1135,7 +1136,8 @@ atspi_event_main (void)
 void
 atspi_event_quit (void)
 {
-  g_main_loop_quit (atspi_main_loop);
+  if (atspi_main_loop)
+    g_main_loop_quit (atspi_main_loop);
 }
 
 /**
@@ -1414,13 +1416,13 @@ _atspi_dbus_get_property (gpointer obj, const char *interface, const char *name,
   dbus_message_iter_init (reply, &iter);
   if (dbus_message_iter_get_arg_type (&iter) != 'v')
     {
-      g_warning ("atspi_dbus_get_property: expected a variant when fetching %s from interface %s; got %s\n", name, interface, dbus_message_get_signature (reply));
+      g_warning ("atspi_dbus_get_property: expected a variant when fetching %s:%s; got %s instead", interface, name, dbus_message_get_signature (reply));
       goto done;
     }
   dbus_message_iter_recurse (&iter, &iter_variant);
   if (dbus_message_iter_get_arg_type (&iter_variant) != expected_type)
     {
-      g_warning ("atspi_dbus_get_property: Wrong type: expected %s, got %c\n", type, dbus_message_iter_get_arg_type (&iter_variant));
+      g_warning ("atspi_dbus_get_property: Wrong type: expected %s when fetching %s:%s; got %c instead", type, interface, name, dbus_message_iter_get_arg_type (&iter_variant));
       goto done;
     }
   if (!strcmp (type, "(so)"))
@@ -2040,7 +2042,14 @@ atspi_role_get_localized_name (AtspiRole role)
 
   _gettext_initialization ();
 
-  raw_name = atspi_role_get_name (role);
+  switch (role)
+    {
+    case ATSPI_ROLE_EDITBAR:
+      raw_name = g_strdup ("edit bar");
+      break;
+    default:
+      raw_name = atspi_role_get_name (role);
+    }
   translated_name = dgettext (GETTEXT_PACKAGE, raw_name);
   if (translated_name != raw_name)
     {
@@ -2244,3 +2253,19 @@ _atspi_key_is_on_keypad (gint keycode)
       return FALSE;
     }
 }
+
+#ifdef HAVE_DBUS_GLIB
+void
+atspi_dbus_connection_setup_with_g_main (DBusConnection *connection,
+                                         GMainContext *context)
+{
+  return dbus_connection_setup_with_g_main (connection, context);
+}
+
+void
+atspi_dbus_server_setup_with_g_main (DBusServer *server,
+                                     GMainContext *context)
+{
+  return dbus_server_setup_with_g_main (server, context);
+}
+#endif

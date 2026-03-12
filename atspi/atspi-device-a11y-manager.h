@@ -2,7 +2,7 @@
  * AT-SPI - Assistive Technology Service Provider Interface
  * (Gnome Accessibility Project; http://developer.gnome.org/projects/gap)
  *
- * Copyright 2019 SUSE LLC.
+ * Copyright 2024 Red Hat
  *
  *
  * This library is free software; you can redistribute it and/or
@@ -21,16 +21,22 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef _ATSPI_MUTTER_H_
-#define _ATSPI_MUTTER_H_
+#pragma once
+#include "glib-object.h"
+
+#include "atspi-device.h"
+#include "atspi-types.h"
 
 G_BEGIN_DECLS
 
-gboolean _atspi_mutter_generate_keyboard_event (glong keyval, const gchar *keystring, AtspiKeySynthType synth_type, GError **error);
+#define ATSPI_DEVICE_A11Y_MANAGER_VIRTUAL_MOD_START 15 /* To avoid the clash with ATSPI_MODIFIER_NUMLOCK */
+#define ATSPI_DEVICE_A11Y_MANAGER_VIRTUAL_MOD_END 31
 
-gboolean _atspi_mutter_generate_mouse_event (glong x, glong y, const gchar *name, GError **error);
+#define ATSPI_TYPE_DEVICE_A11Y_MANAGER (atspi_device_a11y_manager_get_type ())
+G_DECLARE_FINAL_TYPE (AtspiDeviceA11yManager, atspi_device_a11y_manager, ATSPI, DEVICE_A11Y_MANAGER, AtspiDevice)
 
-void _atspi_mutter_set_reference_window (AtspiAccessible *accessible);
+AtspiDeviceA11yManager *atspi_device_a11y_manager_try_new ();
+
+AtspiDeviceA11yManager *atspi_device_a11y_manager_try_new_full (const gchar *app_id);
+
 G_END_DECLS
-
-#endif /* _ATSPI_MUTTER_H_ */

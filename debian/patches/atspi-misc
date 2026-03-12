@@ -1,0 +1,22 @@
+commit c2d990351c51da9fb38b17dc2609a82bea3b116f
+Author: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Date:   Fri Feb 6 20:05:31 2026 +0100
+
+    Fix standalone compilation of atspi-misc.h
+
+diff --git a/atspi/atspi-misc.h b/atspi/atspi-misc.h
+index b3d365bb..21bd69ae 100644
+--- a/atspi/atspi-misc.h
++++ b/atspi/atspi-misc.h
+@@ -25,6 +25,11 @@
+ 
+ #pragma once
+ 
++#include <dbus/dbus.h>
++#include <glib.h>
++
++#include "atspi-constants.h"
++
+ G_BEGIN_DECLS
+ 
+ int atspi_init (void);

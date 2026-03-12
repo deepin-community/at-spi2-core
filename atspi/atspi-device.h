@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef _ATSPI_DEVICE_H_
-#define _ATSPI_DEVICE_H_
+#pragma once
 
 #include "glib-object.h"
 
@@ -31,24 +30,13 @@
 G_BEGIN_DECLS
 
 #define ATSPI_TYPE_DEVICE (atspi_device_get_type ())
-#define ATSPI_DEVICE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), ATSPI_TYPE_DEVICE, AtspiDevice))
-#define ATSPI_DEVICE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), ATSPI_TYPE_DEVICE, AtspiDeviceClass))
-#define ATSPI_IS_DEVICE(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), ATSPI_TYPE_DEVICE))
-#define ATSPI_IS_DEVICE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), ATSPI_TYPE_DEVICE))
-#define ATSPI_DEVICE_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), ATSPI_TYPE_DEVICE, AtspiDeviceClass))
+G_DECLARE_DERIVABLE_TYPE (AtspiDevice, atspi_device, ATSPI, DEVICE, GObject)
 
-typedef struct _AtspiDevice AtspiDevice;
-struct _AtspiDevice
-{
-  GObject parent;
-};
-
-typedef struct _AtspiDeviceClass AtspiDeviceClass;
 struct _AtspiDeviceClass
 {
   GObjectClass parent_class;
 
-  void (*add_key_grab) (AtspiDevice *device, AtspiKeyDefinition *kd);
+  gboolean (*add_key_grab) (AtspiDevice *device, AtspiKeyDefinition *kd);
   void (*remove_key_grab) (AtspiDevice *device, guint id);
   guint (*map_modifier) (AtspiDevice *device, gint keycode);
   void (*unmap_modifier) (AtspiDevice *device, gint keycode);
@@ -56,9 +44,11 @@ struct _AtspiDeviceClass
   gboolean (*grab_keyboard) (AtspiDevice *device);
   void (*ungrab_keyboard) (AtspiDevice *device);
   guint (*get_locked_modifiers) (AtspiDevice *device);
+  void (*generate_mouse_event) (AtspiDevice *device, AtspiAccessible *obj, gint x, gint y, const gchar *name, GError **error);
+  guint (*map_keysym_modifier) (AtspiDevice *device, guint keysym);
+  void (*unmap_keysym_modifier) (AtspiDevice *device, guint keysym);
+  guint (*get_keysym_modifier) (AtspiDevice *device, guint keysym);
 };
-
-GType atspi_device_get_type (void);
 
 /**
  * AtspiKeyCallback:
@@ -76,7 +66,7 @@ typedef void (*AtspiKeyCallback) (AtspiDevice *device, gboolean pressed, guint k
 
 AtspiDevice *atspi_device_new ();
 
-gboolean atspi_device_notify_key (AtspiDevice *device, gboolean pressed, int keycode, int keysym, gint state, gchar *text);
+gboolean atspi_device_notify_key (AtspiDevice *device, gboolean pressed, int keycode, int keysym, gint state, const gchar *text);
 
 guint atspi_device_add_key_grab (AtspiDevice *device, AtspiKeyDefinition *kd, AtspiKeyCallback callback, void *user_data, GDestroyNotify callback_destroyed);
 
@@ -98,6 +88,19 @@ gboolean atspi_device_grab_keyboard (AtspiDevice *device);
 
 void atspi_device_ungrab_keyboard (AtspiDevice *device);
 
-G_END_DECLS
+void atspi_device_generate_mouse_event (AtspiDevice *device, AtspiAccessible *obj, gint x, gint y, const gchar *name, GError **error);
 
-#endif /* _ATSPI_DEVICE_H_ */
+guint atspi_device_map_keysym_modifier (AtspiDevice *device, guint keysym);
+
+void atspi_device_unmap_keysym_modifier (AtspiDevice *device, guint keysym);
+
+guint atspi_device_get_keysym_modifier (AtspiDevice *device, guint keysym);
+
+const gchar *atspi_device_get_app_id (AtspiDevice *device);
+
+void atspi_device_set_app_id (AtspiDevice *device, const gchar *app_id);
+
+AtspiDevice *atspi_device_new_full (const gchar *app_id);
+
+void atspi_device_clear_key_grabs (AtspiDevice *device);
+G_END_DECLS

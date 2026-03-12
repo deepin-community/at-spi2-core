@@ -155,7 +155,7 @@ client_registered (GObject *source,
   A11yBusLauncher *app = user_data;
   GError *error = NULL;
   GVariant *variant;
-  gchar *object_path;
+  gchar *object_path = NULL;
   GDBusProxyFlags flags;
 
   variant = g_dbus_proxy_call_finish (app->sm_proxy, result, &error);
@@ -172,13 +172,20 @@ client_registered (GObject *source,
       g_variant_get (variant, "(o)", &object_path);
       g_variant_unref (variant);
 
-      flags = G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES;
-      g_dbus_proxy_new_for_bus (G_BUS_TYPE_SESSION, flags, NULL,
-                                "org.gnome.SessionManager", object_path,
-                                "org.gnome.SessionManager.ClientPrivate",
-                                NULL, client_proxy_ready_cb, app);
+      if (object_path == NULL)
+        {
+          g_warning ("Failed to register client: no object in reply");
+        }
+      else
+        {
+          flags = G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES;
+          g_dbus_proxy_new_for_bus (G_BUS_TYPE_SESSION, flags, NULL,
+                                    "org.gnome.SessionManager", object_path,
+                                    "org.gnome.SessionManager.ClientPrivate",
+                                    NULL, client_proxy_ready_cb, app);
 
-      g_free (object_path);
+          g_free (object_path);
+        }
     }
   g_clear_object (&app->sm_proxy);
 }
@@ -569,15 +576,20 @@ ensure_a11y_bus (A11yBusLauncher *app)
         g_free (at_spi_dir);
     }
 
+  const gchar *dbus_preference = g_getenv ("ATSPI_DBUS_IMPLEMENTATION");
 #ifdef WANT_DBUS_BROKER
-  success = ensure_a11y_bus_broker (app, config_path);
+  // try dbus-broker first unless dbus-daemon explicitly selected via env var
+  if (g_strcmp0 (dbus_preference, "dbus-daemon") != 0)
+    success = ensure_a11y_bus_broker (app, config_path);
   if (!success)
     {
       if (!ensure_a11y_bus_daemon (app, config_path))
         return FALSE;
     }
 #else
-  success = ensure_a11y_bus_daemon (app, config_path);
+  // try dbus-daemon first unless dbus-broker explicitly selected via env var
+  if (g_strcmp0 (dbus_preference, "dbus-broker") != 0)
+    success = ensure_a11y_bus_daemon (app, config_path);
   if (!success)
     {
       if (!ensure_a11y_bus_broker (app, config_path))
@@ -887,6 +899,7 @@ init_sigterm_handling (A11yBusLauncher *app)
                   G_IO_IN | G_IO_ERR | G_IO_HUP,
                   on_sigterm_pipe,
                   app);
+  g_io_channel_unref (sigterm_channel);
 }
 
 static GSettings *

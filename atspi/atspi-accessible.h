@@ -23,8 +23,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef _ATSPI_ACCESSIBLE_H_
-#define _ATSPI_ACCESSIBLE_H_
+#pragma once
 
 G_BEGIN_DECLS
 
@@ -108,6 +107,34 @@ gchar *atspi_accessible_get_atspi_version (AtspiAccessible *obj, GError **error)
 
 gint atspi_accessible_get_id (AtspiAccessible *obj, GError **error);
 
+gboolean atspi_accessible_is_action (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_application (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_collection (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_component (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_document (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_editable_text (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_hypertext (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_hyperlink (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_image (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_selection (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_table (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_table_cell (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_text (AtspiAccessible *obj);
+
+gboolean atspi_accessible_is_value (AtspiAccessible *obj);
+
 AtspiAccessible *atspi_accessible_get_application (AtspiAccessible *obj, GError **error);
 
 #ifndef ATSPI_DISABLE_DEPRECATED
@@ -174,11 +201,11 @@ guint atspi_accessible_get_process_id (AtspiAccessible *accessible, GError **err
 
 gchar *atspi_accessible_get_accessible_id (AtspiAccessible *obj, GError **error);
 
+gchar *atspi_accessible_get_help_text (AtspiAccessible *obj, GError **error);
+
 /* private */
 void _atspi_accessible_add_cache (AtspiAccessible *accessible, AtspiCache flag);
 AtspiCache _atspi_accessible_get_cache_mask (AtspiAccessible *accessible);
 gboolean _atspi_accessible_test_cache (AtspiAccessible *accessible, AtspiCache flag);
 
 G_END_DECLS
-
-#endif /* _ATSPI_ACCESSIBLE_H_ */

@@ -260,13 +260,6 @@ spi_init_keystroke_from_atk_key_event (AtspiDeviceEvent *keystroke,
       g_error ("atk passed us an AtkKeyEventStruct invalid type %d", event->type);
       return;
     }
-#if 0
-  g_print
-    ("key_event type %d; val=%d code=%d modifiers=%x name=%s is_text=%d, time=%lx\n",
-     (int) keystroke->type, (int) keystroke->id, (int) keystroke->hw_code,
-     (int) keystroke->modifiers, keystroke->event_string,
-     (int) keystroke->is_text, (unsigned long) keystroke->timestamp);
-#endif
 }
 
 static gint
@@ -655,6 +648,13 @@ property_event_listener (GSignalInvocationHint *signal_hint,
   else if (strcmp (pname, "accessible-description") == 0)
     {
       s1 = atk_object_get_description (accessible);
+      if (s1 != NULL)
+        emit_event (accessible, ITF_EVENT_OBJECT, PCHANGE, pname, 0, 0,
+                    DBUS_TYPE_STRING_AS_STRING, s1, append_basic);
+    }
+  else if (strcmp (pname, "accessible-help-text") == 0)
+    {
+      s1 = atk_object_get_help_text (accessible);
       if (s1 != NULL)
         emit_event (accessible, ITF_EVENT_OBJECT, PCHANGE, pname, 0, 0,
                     DBUS_TYPE_STRING_AS_STRING, s1, append_basic);
@@ -1208,6 +1208,64 @@ children_changed_event_listener (GSignalInvocationHint *signal_hint,
   return TRUE;
 }
 
+/*
+ * Handles the ATK signal 'Gtk:AtkObject:attribute-changed' and
+ * converts it to the AT-SPI signal - 'object:attributes-changed'
+ *
+ */
+static gboolean
+attribute_changed_event_listener (GSignalInvocationHint *signal_hint,
+                                  guint n_param_values,
+                                  const GValue *param_values,
+                                  gpointer data)
+{
+  AtkObject *accessible;
+  const gchar *key = NULL, *value = NULL;
+
+  accessible = ATK_OBJECT (g_value_get_object (&param_values[0]));
+  if (G_VALUE_TYPE (&param_values[1]) == G_TYPE_STRING)
+    key = g_value_get_string (&param_values[1]);
+  else
+    key = "";
+  if (G_VALUE_TYPE (&param_values[2]) == G_TYPE_STRING)
+    value = g_value_get_string (&param_values[2]);
+  else
+    value = "";
+
+  emit_event (accessible, ITF_EVENT_OBJECT, "attributes-changed", key, 0, 0,
+              DBUS_TYPE_STRING_AS_STRING, value, append_basic);
+  return TRUE;
+}
+
+/*
+ * Handles the ATK signal 'Gtk:AtkDocument:attribute-changed' and
+ * converts it to the AT-SPI signal - 'document:attributes-changed'
+ *
+ */
+static gboolean
+document_attribute_changed_event_listener (GSignalInvocationHint *signal_hint,
+                                           guint n_param_values,
+                                           const GValue *param_values,
+                                           gpointer data)
+{
+  AtkObject *accessible;
+  const gchar *key = NULL, *value = NULL;
+
+  accessible = ATK_OBJECT (g_value_get_object (&param_values[0]));
+  if (G_VALUE_TYPE (&param_values[1]) == G_TYPE_STRING)
+    key = g_value_get_string (&param_values[1]);
+  else
+    key = "";
+  if (G_VALUE_TYPE (&param_values[2]) == G_TYPE_STRING)
+    value = g_value_get_string (&param_values[2]);
+  else
+    value = "";
+
+  emit_event (accessible, ITF_EVENT_DOCUMENT, "attributes-changed", key, 0, 0,
+              DBUS_TYPE_STRING_AS_STRING, value, append_basic);
+  return TRUE;
+}
+
 /*---------------------------------------------------------------------------*/
 
 /*
@@ -1337,6 +1395,8 @@ spi_atk_register_event_listeners (void)
                        "Gtk:AtkDocument:load-stopped");
   add_signal_listener (document_event_listener,
                        "Gtk:AtkDocument:page-changed");
+  add_signal_listener (document_attribute_changed_event_listener,
+                       "Gtk:AtkDocument:document-attribute-changed");
   /* TODO Fake this event on the client side */
   add_signal_listener (state_event_listener, "Gtk:AtkObject:state-change");
   /* TODO */
@@ -1346,6 +1406,8 @@ spi_atk_register_event_listeners (void)
                        "Gtk:AtkObject:announcement");
   add_signal_listener (notification_event_listener,
                        "Gtk:AtkObject:notification");
+  add_signal_listener (attribute_changed_event_listener,
+                       "Gtk:AtkObject:attribute-changed");
   add_signal_listener (bounds_event_listener,
                        "Gtk:AtkComponent:bounds-changed");
   add_signal_listener (text_selection_changed_event_listener,
@@ -1376,16 +1438,6 @@ spi_atk_register_event_listeners (void)
   add_signal_listener (generic_event_listener, "Gtk:AtkTable:column-deleted");
   add_signal_listener (generic_event_listener, "Gtk:AtkTable:model-changed");
   add_signal_listener (children_changed_event_listener, "Gtk:AtkObject:children-changed");
-
-#if 0
-  g_signal_connect (G_OBJECT (spi_global_app_data->root),
-                    "children-changed::add",
-                    (GCallback) toplevel_added_event_listener, NULL);
-
-  g_signal_connect (G_OBJECT (spi_global_app_data->root),
-                    "children-changed::remove",
-                    (GCallback) toplevel_removed_event_listener, NULL);
-#endif
 
   /*
    * May add the following listeners to implement preemptive key listening for GTK+

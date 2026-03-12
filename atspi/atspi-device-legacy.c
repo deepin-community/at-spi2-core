@@ -171,17 +171,20 @@ atspi_device_legacy_map_modifier (AtspiDevice *device, gint keycode)
 
   desc = XkbGetMap (priv->display, XkbModifierMapMask, XkbUseCoreKbd);
 
-  if (keycode < desc->min_key_code || keycode >= desc->max_key_code)
+  if (desc)
     {
-      XkbFreeKeyboard (desc, XkbModifierMapMask, TRUE);
-      g_warning ("Passed invalid keycode %d", keycode);
-      return 0;
-    }
+      if (keycode < desc->min_key_code || keycode >= desc->max_key_code)
+        {
+          XkbFreeKeyboard (desc, XkbModifierMapMask, TRUE);
+          g_warning ("Passed invalid keycode %d", keycode);
+          return 0;
+        }
 
-  ret = desc->map->modmap[keycode];
-  XkbFreeKeyboard (desc, XkbModifierMapMask, TRUE);
-  if (ret & (ShiftMask | ControlMask))
-    return ret;
+      ret = desc->map->modmap[keycode];
+      XkbFreeKeyboard (desc, XkbModifierMapMask, TRUE);
+      if (ret & (ShiftMask | ControlMask))
+        return ret;
+    }
 #endif
 
   ret = find_virtual_mapping (legacy_device, keycode);
@@ -228,17 +231,20 @@ atspi_device_legacy_get_modifier (AtspiDevice *device, gint keycode)
 
   desc = XkbGetMap (priv->display, XkbModifierMapMask, XkbUseCoreKbd);
 
-  if (keycode < desc->min_key_code || keycode >= desc->max_key_code)
+  if (desc)
     {
-      XkbFreeKeyboard (desc, XkbModifierMapMask, TRUE);
-      g_warning ("Passed invalid keycode %d", keycode);
-      return 0;
-    }
+      if (keycode < desc->min_key_code || keycode >= desc->max_key_code)
+        {
+          XkbFreeKeyboard (desc, XkbModifierMapMask, TRUE);
+          g_warning ("Passed invalid keycode %d", keycode);
+          return 0;
+        }
 
-  ret = desc->map->modmap[keycode];
-  XkbFreeKeyboard (desc, XkbModifierMapMask, TRUE);
-  if (ret)
-    return ret;
+      ret = desc->map->modmap[keycode];
+      XkbFreeKeyboard (desc, XkbModifierMapMask, TRUE);
+      if (ret)
+        return ret;
+    }
 #endif
 
   return find_virtual_mapping (legacy_device, keycode);
@@ -261,6 +267,79 @@ atspi_device_legacy_ungrab_keyboard (AtspiDevice *device)
   AtspiDeviceLegacyPrivate *priv = atspi_device_legacy_get_instance_private (legacy_device);
 
   priv->keyboard_grabbed = FALSE;
+}
+
+static void
+atspi_device_legacy_generate_mouse_event (AtspiDevice *device, AtspiAccessible *obj, gint x, gint y, const gchar *name, GError **error)
+{
+  AtspiPoint *p;
+
+  p = atspi_component_get_position (ATSPI_COMPONENT (obj), ATSPI_COORD_TYPE_SCREEN, error);
+  if (p->y == -1 && atspi_accessible_get_role (obj, NULL) == ATSPI_ROLE_APPLICATION)
+    {
+      g_clear_error (error);
+      AtspiAccessible *child = atspi_accessible_get_child_at_index (obj, 0, NULL);
+      if (child)
+        {
+          g_free (p);
+          p = atspi_component_get_position (ATSPI_COMPONENT (child), ATSPI_COORD_TYPE_SCREEN, error);
+          g_object_unref (child);
+        }
+    }
+
+  if (p->y == -1 || p->x == -1)
+    {
+      g_free(p);
+      return;
+    }
+
+  x += p->x;
+  y += p->y;
+  g_free (p);
+
+  atspi_generate_mouse_event (x, y, name, error);
+}
+
+static guint
+atspi_device_legacy_map_keysym_modifier (AtspiDevice *device, guint keysym)
+{
+  AtspiDeviceLegacy *legacy_device = ATSPI_DEVICE_LEGACY (device);
+  AtspiDeviceLegacyPrivate *priv = atspi_device_legacy_get_instance_private (legacy_device);
+
+  guint resolved_keysym = keysym;
+#ifdef HAVE_X11
+  resolved_keysym = XKeysymToKeycode (priv->display, keysym);
+#endif
+
+  return atspi_device_legacy_map_modifier (device, resolved_keysym);
+}
+
+static void
+atspi_device_legacy_unmap_keysym_modifier (AtspiDevice *device, guint keysym)
+{
+  AtspiDeviceLegacy *legacy_device = ATSPI_DEVICE_LEGACY (device);
+  AtspiDeviceLegacyPrivate *priv = atspi_device_legacy_get_instance_private (legacy_device);
+
+  guint resolved_keysym = keysym;
+#ifdef HAVE_X11
+  resolved_keysym = XKeysymToKeycode (priv->display, keysym);
+#endif
+
+  atspi_device_legacy_unmap_modifier (device, resolved_keysym);
+}
+
+static guint
+atspi_device_legacy_get_keysym_modifier (AtspiDevice *device, guint keysym)
+{
+  AtspiDeviceLegacy *legacy_device = ATSPI_DEVICE_LEGACY (device);
+  AtspiDeviceLegacyPrivate *priv = atspi_device_legacy_get_instance_private (legacy_device);
+
+  guint resolved_keysym = keysym;
+#ifdef HAVE_X11
+  resolved_keysym = XKeysymToKeycode (priv->display, keysym);
+#endif
+
+  return atspi_device_legacy_get_modifier (device, resolved_keysym);
 }
 
 static void
@@ -306,6 +385,28 @@ atspi_device_legacy_class_init (AtspiDeviceLegacyClass *klass)
   device_class->get_locked_modifiers = atspi_device_legacy_get_locked_modifiers;
   device_class->grab_keyboard = atspi_device_legacy_grab_keyboard;
   device_class->ungrab_keyboard = atspi_device_legacy_ungrab_keyboard;
+  device_class->generate_mouse_event = atspi_device_legacy_generate_mouse_event;
+  device_class->map_keysym_modifier = atspi_device_legacy_map_keysym_modifier;
+  device_class->unmap_keysym_modifier = atspi_device_legacy_unmap_keysym_modifier;
+  device_class->get_keysym_modifier = atspi_device_legacy_get_keysym_modifier;
+}
+
+/**
+ * atspi_device_legacy_new_full:
+ * @app_id: (nullable): The application id.
+ *
+ * Creates a new #AtspiDeviceLegacy with the given app id.
+ *
+ * Returns: (transfer full): a pointer to a newly-created #AtspiDeviceLegacy.
+ *
+ * Since: 2.55
+ */
+AtspiDeviceLegacy *
+atspi_device_legacy_new_full (const gchar *app_id)
+{
+  AtspiDeviceLegacy *device = g_object_new (atspi_device_legacy_get_type (), "app-id", app_id, NULL);
+
+  return device;
 }
 
 /**
@@ -315,11 +416,9 @@ atspi_device_legacy_class_init (AtspiDeviceLegacyClass *klass)
  *
  * Returns: (transfer full): a pointer to a newly-created #AtspiDeviceLegacy.
  *
- **/
+ */
 AtspiDeviceLegacy *
-atspi_device_legacy_new ()
+atspi_device_legacy_new (void)
 {
-  AtspiDeviceLegacy *device = g_object_new (atspi_device_legacy_get_type (), NULL);
-
-  return device;
+  return atspi_device_legacy_new_full (NULL);
 }
