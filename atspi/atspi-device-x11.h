@@ -21,8 +21,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef _ATSPI_DEVICE_X11_H_
-#define _ATSPI_DEVICE_X11_H_
+#pragma once
 
 #include "glib-object.h"
 
@@ -54,6 +53,5 @@ GType atspi_device_x11_get_type (void);
 
 AtspiDeviceX11 *atspi_device_x11_new ();
 
+AtspiDeviceX11 *atspi_device_x11_new_full (const gchar *app_id);
 G_END_DECLS
-
-#endif /* _ATSPI_DEVICE_X11_H_ */

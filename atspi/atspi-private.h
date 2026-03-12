@@ -22,14 +22,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef _ATSPI_PRIVATE_H_
-#define _ATSPI_PRIVATE_H_
+#pragma once
 
 #include "atspi-device-listener-private.h"
 #include "atspi-event-listener-private.h"
 #include "atspi-matchrule-private.h"
 #include "atspi-misc-private.h"
-#include "atspi-mutter-private.h"
 #include <config.h>
 
 #include "glib/gi18n.h"
@@ -40,5 +38,3 @@
 G_BEGIN_DECLS
 void _atspi_reregister_device_listeners ();
 G_END_DECLS
-
-#endif /* _ATSPI_PRIVATE_H_ */

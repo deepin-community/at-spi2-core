@@ -59,6 +59,7 @@
 #define NAME_ATTR ((const xmlChar *) "name")
 #define DESC_ATTR ((const xmlChar *) "description")
 #define ROLE_ATTR ((const xmlChar *) "role")
+#define HELP_TEXT_ATTR ((const xmlChar *) "help_text")
 #define MIN_ATTR ((const xmlChar *) "min")
 #define MAX_ATTR ((const xmlChar *) "max")
 #define CURRENT_ATTR ((const xmlChar *) "current")
@@ -161,6 +162,7 @@ create_atk_object_from_element (xmlNode *element)
   xmlChar *name;
   xmlChar *description;
   xmlChar *role;
+  xmlChar *help_text;
   gint relation_type;
   gint x_size, y_size;
   gint width, height;
@@ -168,6 +170,7 @@ create_atk_object_from_element (xmlNode *element)
   name = xmlGetProp (element, NAME_ATTR);
   description = xmlGetProp (element, DESC_ATTR);
   role = xmlGetProp (element, ROLE_ATTR);
+  help_text = xmlGetProp (element, HELP_TEXT_ATTR);
   GType type = MY_TYPE_ATK_OBJECT;
   gint layer;
   gint zorder;
@@ -216,6 +219,7 @@ create_atk_object_from_element (xmlNode *element)
                       "accessible-name", name,
                       "accessible-description", description,
                       "accessible-role", atk_role_for_name ((const gchar *) role),
+                      "accessible-help-text", (help_text ? (const char *)help_text : ""),
                       NULL);
   xmlFree (name);
   xmlFree (description);
@@ -398,7 +402,7 @@ atk_object_xml_parse (gchar *filename)
   MyAtkObject *new_atk_object = NULL;
 
   doc = xmlReadFile (filename, NULL, 0);
-  g_assert (doc != NULL);
+  g_assert_nonnull (doc);
 
   root_element = xmlDocGetRootElement (doc);
 

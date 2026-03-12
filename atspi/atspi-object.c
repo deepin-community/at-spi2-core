@@ -37,6 +37,8 @@ atspi_object_dispose (GObject *object)
 
   if (aobj->app)
     {
+      if (aobj->app->hash)
+        g_hash_table_remove (aobj->app->hash, aobj->path);
       g_object_unref (aobj->app);
       aobj->app = NULL;
     }

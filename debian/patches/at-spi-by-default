@@ -4,14 +4,12 @@ Subject: at-spi-by-default
 
 Accessibility is now always started by default, ready for use
 ---
- bus/at-spi-dbus-bus.desktop.in | 2 --
+ bus/at-spi-dbus-bus.desktop.in |    2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/bus/at-spi-dbus-bus.desktop.in b/bus/at-spi-dbus-bus.desktop.in
-index a45d27e..22f6b75 100644
 --- a/bus/at-spi-dbus-bus.desktop.in
 +++ b/bus/at-spi-dbus-bus.desktop.in
-@@ -2,8 +2,6 @@
+@@ -2,9 +2,7 @@
  Type=Application
  Name=AT-SPI D-Bus Bus
  Exec=@libexecdir@/at-spi-bus-launcher --launch-immediately
@@ -20,3 +18,4 @@ index a45d27e..22f6b75 100644
 -AutostartCondition=GSettings org.gnome.desktop.interface toolkit-accessibility
  X-GNOME-AutoRestart=true
  X-GNOME-Autostart-Phase=Initialization
+ X-systemd-skip=true

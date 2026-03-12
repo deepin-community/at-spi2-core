@@ -34,6 +34,12 @@
 #include <string.h>
 
 static dbus_bool_t
+impl_get_Version (DBusMessageIter *iter, void *user_data)
+{
+  return droute_return_v_uint32 (iter, SPI_DBUS_ACCESSIBLE_VERSION);
+}
+
+static dbus_bool_t
 impl_get_Name (DBusMessageIter *iter, void *user_data)
 {
   AtkObject *object = (AtkObject *) user_data;
@@ -202,6 +208,16 @@ impl_GetChildren (DBusConnection *bus,
   g_return_val_if_fail (ATK_IS_OBJECT (user_data),
                         droute_not_yet_handled_error (message));
   count = atk_object_get_n_accessible_children (object);
+
+  if (count > ATSPI_MAX_CHILDREN)
+    {
+      gchar *errmsg = g_strdup_printf (
+          "Accessible's child count %d exceeds the maximum of %d handled by GetChildren.", count, ATSPI_MAX_CHILDREN);
+      reply = dbus_message_new_error (message, DBUS_ERROR_INVALID_ARGS, errmsg);
+      g_free (errmsg);
+      return reply;
+    }
+
   reply = dbus_message_new_method_return (message);
   if (!reply)
     goto oom;
@@ -568,6 +584,16 @@ impl_get_AccessibleId (DBusMessageIter *iter, void *user_data)
   return droute_return_v_string (iter, atk_object_get_accessible_id (object));
 }
 
+static dbus_bool_t
+impl_get_HelpText (DBusMessageIter *iter, void *user_data)
+{
+  AtkObject *object = (AtkObject *) user_data;
+
+  g_return_val_if_fail (ATK_IS_OBJECT (user_data), FALSE);
+
+  return droute_return_v_string (iter, atk_object_get_help_text (object));
+}
+
 static DRouteMethod methods[] = {
   { impl_GetChildAtIndex, "GetChildAtIndex" },
   { impl_GetChildren, "GetChildren" },
@@ -591,6 +617,8 @@ static DRouteProperty properties[] = {
   { impl_get_ChildCount, NULL, "ChildCount" },
   { impl_get_Attributes, NULL, "Attributes" },
   { impl_get_AccessibleId, NULL, "AccessibleId" },
+  { impl_get_HelpText, NULL, "HelpText" },
+  { impl_get_Version, NULL, "version" },
   { NULL, NULL, NULL }
 };
 

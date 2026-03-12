@@ -159,20 +159,9 @@ atspi_component_get_extents (AtspiComponent *obj,
 {
   dbus_uint32_t d_ctype = ctype;
   AtspiRect bbox;
-  AtspiAccessible *accessible;
 
   bbox.x = bbox.y = bbox.width = bbox.height = -1;
   g_return_val_if_fail (obj != NULL, atspi_rect_copy (&bbox));
-
-  accessible = ATSPI_ACCESSIBLE (obj);
-  if (accessible->priv->cache && ctype == ATSPI_COORD_TYPE_SCREEN)
-    {
-      GValue *val = g_hash_table_lookup (accessible->priv->cache, "Component.ScreenExtents");
-      if (val)
-        {
-          return g_value_dup_boxed (val);
-        }
-    }
 
   _atspi_dbus_call (obj, atspi_interface_component, "GetExtents", error, "u=>(iiii)", d_ctype, &bbox);
   return atspi_rect_copy (&bbox);
@@ -195,7 +184,7 @@ atspi_component_get_position (AtspiComponent *obj,
                               AtspiCoordType ctype,
                               GError **error)
 {
-  dbus_int32_t d_x, d_y;
+  dbus_int32_t d_x = -1, d_y = -1;
   dbus_uint32_t d_ctype = ctype;
   AtspiPoint ret;
 
@@ -224,7 +213,7 @@ atspi_component_get_position (AtspiComponent *obj,
 AtspiPoint *
 atspi_component_get_size (AtspiComponent *obj, GError **error)
 {
-  dbus_int32_t d_w, d_h;
+  dbus_int32_t d_w = -1, d_h = -1;
   AtspiPoint ret;
 
   ret.x = ret.y = -1;

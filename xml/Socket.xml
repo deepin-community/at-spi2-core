@@ -7,7 +7,16 @@
   <interface name="org.a11y.atspi.Socket">
 
     <!--
+        Version: The version of this interface.
+
+        This property is incremented by one every time a new method, signal, or property
+        is added to this interface.
+    -->
+    <property name="version" type="u" access="read"/>
+
+    <!--
         Embed:
+
         @plug: a string for the unique bus name of the application, and an object path
         for the application's' root object.
 
@@ -33,7 +42,20 @@
     </method>
 
     <!--
+        Embedded:
+
+        @path: the object path of the socket.
+
+        This method is called by a socket to inform the plug that it is being
+        embedded. The plug should register the embedding socket as its parent.
+    -->
+    <method name="Embedded">
+      <arg direction="in" name="path" type="s"/>
+    </method>
+
+    <!--
         Unembed:
+
         @plug: a string for the unique bus name of the application, and an object path
         for the application's' root object.
 
@@ -48,6 +70,7 @@
 
     <!--
         Available:
+
         @socket: application and object path for the registry's root object.
 
         The accessibility registry emits this signal early during startup, when it has

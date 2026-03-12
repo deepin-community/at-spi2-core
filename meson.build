@@ -1,14 +1,14 @@
 project('at-spi2-core', 'c',
-        version: '2.50.0',
+        version: '2.59.1',
         license: 'LGPLv2.1+',
         default_options: [
           'buildtype=debugoptimized',
           'warning_level=1',
           'c_std=c99',
         ],
-        meson_version: '>= 0.63.0')
+        meson_version: '>= 0.64.0')
 
-add_project_arguments([ '-D_POSIX_C_SOURCE=200809L', '-D_DEFAULT_SOURCE' ], language: 'c')
+add_project_arguments([ '-D_XOPEN_SOURCE=700', '-D_GNU_SOURCE' ], language: 'c')
 
 fs = import('fs')
 
@@ -85,6 +85,7 @@ endif
 # Maintain compatibility with autotools on macOS
 if host_machine.system() == 'darwin'
   common_ldflags += [ '-compatibility_version', darwin_versions[0], '-current_version', darwin_versions[1]]
+  add_project_arguments([ '-D_DARWIN_C_SOURCE' ], language: 'c')
 endif
 
 # Functions
@@ -123,6 +124,7 @@ at_spi_conf.set_quoted('ATSPI_LOCALEDIR', join_paths(atspi_datadir, 'locale'))
 
 # Dependencies
 libdbus_req_version = '>= 1.5'
+dbus_glib_req_version = '>= 0.104'
 glib_req_version = '>= 2.67.4'
 gobject_req_version = '>= 2.0.0'
 gmodule_req_version = '>= 2.0.0'
@@ -131,6 +133,8 @@ libxml_req_version = '>= 2.9.1'
 
 if not get_option('atk_only')
   libdbus_dep = dependency('dbus-1', version: libdbus_req_version)
+  dbus_glib_dep = dependency('dbus-glib-1', version: dbus_glib_req_version, required: get_option('dbus_glib'))
+  at_spi_conf.set('HAVE_DBUS_GLIB', dbus_glib_dep.found())
 endif
 
 glib_dep = dependency('glib-2.0', version: glib_req_version)
@@ -187,18 +191,17 @@ at_spi_conf.set('ALIGNOF_DBIND_STRUCT', cc.alignment('dbind_struct', prefix: 'ty
 gir = find_program('g-ir-scanner', required : get_option('introspection'))
 have_gir = gir.found() and (not meson.is_cross_build() or get_option('introspection').enabled())
 
+if not get_option('atk_only')
+  pymod = import('python')
+  python = pymod.find_installation(get_option('python'), pure: false)
+endif
+
 xgettext = find_program('xgettext', required : false)
 
 configure_file(output: 'config.h', configuration: at_spi_conf)
 
 pkgconfig = import('pkgconfig')
 gnome = import('gnome')
-
-if get_option('disable_p2p')
-  p2p_cflags = [ '-DDISABLE_P2P' ]
-else
-  p2p_cflags = []
-endif
 
 subdir('atk')
 
@@ -214,6 +217,9 @@ if not get_option('atk_only')
   subdir('droute')
   subdir('atk-adaptor')
   subdir('tests')
+  if python.found()
+    subdir('python')
+  endif
 endif
 
 if get_option('docs')

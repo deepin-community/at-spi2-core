@@ -96,7 +96,7 @@ spi_object_append_reference (DBusMessageIter *iter, AtkObject *obj)
   const gchar *name;
   gchar *path;
 
-  if (!obj)
+  if (!obj || !spi_global_app_data->bus)
     {
       spi_object_append_null_reference (iter);
       return;
@@ -296,7 +296,7 @@ spi_object_append_interfaces (DBusMessageIter *iter, AtkObject *obj)
 
   if (ATK_IS_OBJECT (obj))
     {
-      itf = "org.a11y.atspi.Collection";
+      itf = ATSPI_DBUS_INTERFACE_COLLECTION;
       dbus_message_iter_append_basic (iter, DBUS_TYPE_STRING, &itf);
     }
 
@@ -399,7 +399,7 @@ init_role_lookup_table (AtspiRole *role_table)
   role_table[ATK_ROLE_PASSWORD_TEXT] = ATSPI_ROLE_PASSWORD_TEXT;
   role_table[ATK_ROLE_POPUP_MENU] = ATSPI_ROLE_POPUP_MENU;
   role_table[ATK_ROLE_PROGRESS_BAR] = ATSPI_ROLE_PROGRESS_BAR;
-  role_table[ATK_ROLE_PUSH_BUTTON] = ATSPI_ROLE_PUSH_BUTTON;
+  role_table[ATK_ROLE_BUTTON] = ATSPI_ROLE_BUTTON;
   role_table[ATK_ROLE_RADIO_BUTTON] = ATSPI_ROLE_RADIO_BUTTON;
   role_table[ATK_ROLE_RADIO_MENU_ITEM] = ATSPI_ROLE_RADIO_MENU_ITEM;
   role_table[ATK_ROLE_ROOT_PANE] = ATSPI_ROLE_ROOT_PANE;
@@ -490,6 +490,7 @@ init_role_lookup_table (AtspiRole *role_table)
   role_table[ATK_ROLE_MARK] = ATSPI_ROLE_MARK;
   role_table[ATK_ROLE_SUGGESTION] = ATSPI_ROLE_SUGGESTION;
   role_table[ATK_ROLE_PUSH_BUTTON_MENU] = ATSPI_ROLE_PUSH_BUTTON_MENU;
+  role_table[ATK_ROLE_SWITCH] = ATSPI_ROLE_SWITCH;
 
   return TRUE;
 }

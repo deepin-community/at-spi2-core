@@ -31,6 +31,12 @@
 #include "object.h"
 
 static dbus_bool_t
+impl_get_Version (DBusMessageIter *iter, void *user_data)
+{
+  return droute_return_v_uint32 (iter, SPI_DBUS_TABLE_CELL_VERSION);
+}
+
+static dbus_bool_t
 impl_get_ColumnSpan (DBusMessageIter *iter, void *user_data)
 {
   AtkTableCell *cell = (AtkTableCell *) user_data;
@@ -60,7 +66,8 @@ message_from_object_array (DBusMessage *message, GPtrArray *array)
       spi_object_append_reference (&iter_array, g_ptr_array_index (array, i));
     }
   dbus_message_iter_close_container (&iter, &iter_array);
-  g_ptr_array_unref (array);
+  if (array)
+    g_ptr_array_unref (array);
   return reply;
 }
 
@@ -175,6 +182,7 @@ static DRouteProperty properties[] = {
   { impl_get_Position, NULL, "Position" },
   { impl_get_RowSpan, NULL, "RowSpan" },
   { impl_get_Table, NULL, "Table" },
+  { impl_get_Version, NULL, "version" },
   { NULL, NULL, NULL }
 };
 

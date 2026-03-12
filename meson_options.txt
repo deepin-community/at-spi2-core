@@ -14,7 +14,7 @@ option('default_bus',
        description: 'The default DBus implementation to use',
        type: 'combo',
        choices: ['dbus-daemon', 'dbus-broker'],
-       value: 'dbus-daemon')
+       value: 'dbus-broker')
 option('use_systemd',
        description: 'Use systemd if available (needed for dbus-broker)',
        type: 'boolean',
@@ -40,11 +40,12 @@ option('x11',
        description: 'Enable X11 support',
        type: 'feature',
        value: 'auto')
-option('disable_p2p',
-       description: 'Disable peer-to-peer DBus connections for at-spi2-atk',
-       type: 'boolean',
-       value: false)
 option('atk_only',
        description: 'Build only the ATK stub library without atspi or at-spi2-atk (UNSUPPORTED)',
        type: 'boolean',
        value: false)
+option('python', type : 'string', value : 'python3')
+option('dbus_glib',
+       description: 'Use dbus-glib for main loop integration',
+       type: 'feature',
+       value: 'disabled')
