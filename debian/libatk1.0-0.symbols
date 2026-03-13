@@ -1,4 +1,4 @@
-libatk-1.0.so.0 libatk1.0-0t64 #MINVER#
+libatk-1.0.so.0 libatk1.0-0 #MINVER#
 * Build-Depends-Package: libatk1.0-dev
  atk_action_do_action@Base 1.12.4
  atk_action_get_description@Base 1.12.4

@@ -1,3 +1,9 @@
+at-spi2-core (2.59.1-2deepin1) unstable; urgency=medium
+
+  * Revert 64-bit time_t changes.
+
+ -- tunaichao <tunaichao@uniontech.com>  Fri, 13 Mar 2026 17:35:08 +0800
+
 at-spi2-core (2.59.1-2) unstable; urgency=medium
 
   * rules: Fix finding dbus-broker-launch.
